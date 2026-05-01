@@ -1193,9 +1193,9 @@
           </div>
         </div>
         <div class="field-with-pallets-bottom">
-          <span class="pallets-hint">× כמות משטחים:</span>
-          <div class="pallet-count-wrap">
-            <input type="number" id="palletFeeCount" value="0" step="1" min="0" />
+          <span class="pallets-hint">× משטחים (אוטומטי):</span>
+          <div class="pallet-count-wrap" style="background: var(--bg-soft); pointer-events: none;">
+            <span id="palletFeeCountDisplay" style="font-size: 14px; font-weight: 600; color: var(--ink-soft); padding: 0 6px;">0</span>
             <span class="pallet-count-label">משטחים</span>
           </div>
         </div>
@@ -1204,7 +1204,7 @@
       <div style="margin: 18px 0 6px; font-size: 11.5px; color: var(--gold-deep); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">הוצאות בשקל ₪</div>
 
       <div class="field">
-        <label>משרד הבריאות (פר מכולה)</label>
+        <label>משרד הבריאות (פר שילוח)</label>
         <div class="field-input-wrap">
           <input type="number" id="health" value="520" step="10" />
           <span class="unit-symbol ils-tag">₪</span>
@@ -1220,7 +1220,7 @@
       </div>
 
       <div class="field">
-        <label>עמילות מכס (פר מכולה)</label>
+        <label>עמילות מכס (פר שילוח)</label>
         <div class="field-input-wrap">
           <input type="number" id="customs" value="350" step="10" />
           <span class="unit-symbol ils-tag">₪</span>
@@ -1228,9 +1228,9 @@
       </div>
 
       <div class="field">
-        <label>כשרות (פר מכולה)</label>
+        <label>ביטוח (פר שילוח)</label>
         <div class="field-input-wrap">
-          <input type="number" id="kosher" value="500" step="10" />
+          <input type="number" id="insurance" value="0" step="10" />
           <span class="unit-symbol ils-tag">₪</span>
         </div>
       </div>
@@ -1287,6 +1287,23 @@
         </div>
       </div>
 
+      <div class="field-with-pallets">
+        <div class="field-with-pallets-top">
+          <label>שרינק (₪ למשטח)</label>
+          <div class="field-input-wrap">
+            <input type="number" id="shrink" value="9" step="1" />
+            <span class="unit-symbol ils-tag">₪</span>
+          </div>
+        </div>
+        <div class="field-with-pallets-bottom">
+          <span class="pallets-hint">× כמות משטחים:</span>
+          <div class="pallet-count-wrap">
+            <input type="number" id="shrinkPallets" value="0" step="1" min="0" />
+            <span class="pallet-count-label">משטחים</span>
+          </div>
+        </div>
+      </div>
+
       <div class="extras-section">
         <div class="extras-title">נספחים נוספים (חד פעמי, לא פר מכולה)</div>
         <div id="extraRows"></div>
@@ -1328,7 +1345,7 @@
 
       <div class="summary-rows">
         <div class="sum-row">
-          <span class="sum-label">ערך סחורה (FOB)</span>
+          <span class="sum-label">ערך סחורה</span>
           <span class="sum-val" id="goodsValueEur">—</span>
           <span class="sum-val" id="goodsValueIls">—</span>
         </div>
@@ -1343,12 +1360,12 @@
           <span class="sum-val" id="palletFeeIls">—</span>
         </div>
         <div class="sum-row">
-          <span class="sum-label">אגרות, מכס, כשרות</span>
+          <span class="sum-label">אגרות, מכס, ביטוח</span>
           <span class="sum-val" id="feesEur">—</span>
           <span class="sum-val" id="feesIls">—</span>
         </div>
         <div class="sum-row">
-          <span class="sum-label">שילוח מקומי, אחסנה, פריקה</span>
+          <span class="sum-label">שילוח מקומי, אחסנה, פריקה, שרינק</span>
           <span class="sum-val" id="localServicesEur">—</span>
           <span class="sum-val" id="localServicesIls">—</span>
         </div>
@@ -1612,10 +1629,13 @@
       });
     });
     // Sync all per-pallet counts to the total — user can override manually
-    ['localPallets','storagePallets','unloadPallets','palletFeeCount'].forEach(id => {
+    ['localPallets','storagePallets','unloadPallets','shrinkPallets'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = totalAllocatedPallets;
     });
+    // Fumigate is fully automatic — just update the display
+    const fumiDisplay = document.getElementById('palletFeeCountDisplay');
+    if (fumiDisplay) fumiDisplay.textContent = totalAllocatedPallets;
   }
 
   function renderContainers() {
@@ -1839,26 +1859,24 @@
     const ship20Eur          = parseFloat(document.getElementById('shipCost20').value) || 0;
     const ship40Eur          = parseFloat(document.getElementById('shipCost40').value) || 0;
     const palletFeePerEur    = parseFloat(document.getElementById('palletFee').value) || 0;
-    const palletFeeCount     = parseInt(document.getElementById('palletFeeCount').value) || 0;
 
-    // ILS-denominated inputs (per container, fixed)
-    const healthIls   = parseFloat(document.getElementById('health').value) || 0;
-    const portIls     = parseFloat(document.getElementById('port').value) || 0;
-    const customsIls  = parseFloat(document.getElementById('customs').value) || 0;
-    const kosherIls   = parseFloat(document.getElementById('kosher').value) || 0;
+    // ILS-denominated inputs (per shipment, fixed)
+    const healthIls    = parseFloat(document.getElementById('health').value) || 0;
+    const portIls      = parseFloat(document.getElementById('port').value) || 0;
+    const customsIls   = parseFloat(document.getElementById('customs').value) || 0;
+    const insuranceIls = parseFloat(document.getElementById('insurance').value) || 0;
 
     // ILS per-pallet inputs
     const localPerPalletIls   = parseFloat(document.getElementById('local').value) || 0;
     const storagePerPalletIls = parseFloat(document.getElementById('storage').value) || 0;
     const unloadPerPalletIls  = parseFloat(document.getElementById('unload').value) || 0;
+    const shrinkPerPalletIls  = parseFloat(document.getElementById('shrink').value) || 0;
 
     // ILS per-pallet quantities (independently editable)
     const localPalletsCount   = parseInt(document.getElementById('localPallets').value) || 0;
     const storagePalletsCount = parseInt(document.getElementById('storagePallets').value) || 0;
     const unloadPalletsCount  = parseInt(document.getElementById('unloadPallets').value) || 0;
-
-    // Total pallet fee (EUR) — based on manual count
-    const totalPalletFeeEur = palletFeePerEur * palletFeeCount;
+    const shrinkPalletsCount  = parseInt(document.getElementById('shrinkPallets').value) || 0;
 
     // Group by product
     const byProduct = {};
@@ -1919,15 +1937,19 @@
       totalShipEur += p.ship;
     });
 
-    // Per-container fixed ILS fees (health, port, customs, kosher)
-    const feesPerContainerIls = healthIls + portIls + customsIls + kosherIls;
+    // Fumigate: auto-calculated from total allocated pallets
+    const totalPalletFeeEur = palletFeePerEur * totalAllocatedPallets;
+
+    // Per-shipment fixed ILS fees (health, port, customs, insurance)
+    const feesPerContainerIls = healthIls + portIls + customsIls + insuranceIls;
     const totalFeesIls = feesPerContainerIls * totalContainerCount;
 
-    // Per-pallet ILS services (local shipping, storage, unload)
+    // Per-pallet ILS services (local shipping, storage, unload, shrink)
     const localServicesIls =
       (localPerPalletIls * localPalletsCount) +
       (storagePerPalletIls * storagePalletsCount) +
-      (unloadPerPalletIls * unloadPalletsCount);
+      (unloadPerPalletIls * unloadPalletsCount) +
+      (shrinkPerPalletIls * shrinkPalletsCount);
 
     // Extras (mixed currency — convert each to EUR for unified totals)
     let extrasEur = 0;
@@ -2281,10 +2303,10 @@
   }
 
   // Wire all top-level inputs
-  ['shipCost20','shipCost40','exchangeRate','palletFee','palletFeeCount',
-   'health','port','customs','kosher',
-   'local','storage','unload',
-   'localPallets','storagePallets','unloadPallets',
+  ['shipCost20','shipCost40','exchangeRate','palletFee',
+   'health','port','customs','insurance',
+   'local','storage','unload','shrink',
+   'localPallets','storagePallets','unloadPallets','shrinkPallets',
    'opex','corpTaxRate']
     .forEach(id => {
       const el = document.getElementById(id);
