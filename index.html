@@ -2346,7 +2346,128 @@
     });
 
   // ===== EXPORT =====
-  window.exportPDF = function() { window.print(); };
+  window.exportPDF = function() {
+    const date = new Date().toLocaleDateString('he-IL');
+    const exch = document.getElementById('exchangeRate').value || '—';
+    const ship20 = document.getElementById('shipCost20').value;
+    const ship40 = document.getElementById('shipCost40').value;
+    const palletFee = document.getElementById('palletFee').value;
+    const fumiPallets = document.getElementById('palletFeeCountDisplay').textContent;
+    const health = document.getElementById('health').value;
+    const port = document.getElementById('port').value;
+    const customs = document.getElementById('customs').value;
+    const insurance = document.getElementById('insurance').value;
+    const local = document.getElementById('local').value;
+    const storage = document.getElementById('storage').value;
+    const unload = document.getElementById('unload').value;
+    const shrink = document.getElementById('shrink').value;
+    const localPallets = document.getElementById('localPallets').value;
+    const storagePallets = document.getElementById('storagePallets').value;
+    const unloadPallets = document.getElementById('unloadPallets').value;
+    const shrinkPallets = document.getElementById('shrinkPallets').value;
+
+    const g = id => document.getElementById(id)?.textContent || '—';
+
+    // Container breakdown rows
+    const bdRows = [...document.querySelectorAll('#breakdownContainer .scenario-breakdown-row')].map(row => {
+      const tag = row.querySelector('.scenario-bd-tag')?.textContent || '';
+      const desc = row.querySelector('.scenario-bd-desc')?.textContent || '';
+      const amt = row.querySelector('.scenario-bd-amount')?.textContent || '';
+      return `<tr><td>${tag}</td><td>${desc}</td><td style="text-align:left">${amt}</td></tr>`;
+    }).join('');
+
+    // Per-product cards
+    const prodCards = [...document.querySelectorAll('#perProductGrid .product-cost-card')].map(card => {
+      const name = card.querySelector('.product-cost-name')?.textContent || '';
+      const meta = card.querySelector('.product-cost-meta')?.textContent || '';
+      const vals = [...card.querySelectorAll('.product-cost-cell')].map(c => {
+        const lbl = c.querySelector('.product-cost-cell-label')?.textContent || '';
+        const val = c.querySelector('.product-cost-cell-value')?.textContent || '';
+        return `<div><small>${lbl}</small><br/><strong>${val}</strong></div>`;
+      }).join('');
+      return `<div class="prod-card"><strong>${name}</strong><br/><small>${meta}</small><div style="display:flex;gap:20px;margin-top:6px">${vals}</div></div>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<title>Chiarella · דוח עלויות יבוא</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 13px; color: #0f2942; margin: 0; padding: 24px; direction: rtl; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  .meta { color: #7a8fa8; font-size: 12px; margin-bottom: 20px; }
+  h2 { font-size: 14px; margin: 20px 0 8px; padding-bottom: 4px; border-bottom: 1.5px solid #d8e3ee; color: #2e6b9a; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  th { background: #e2eef8; padding: 7px 10px; font-size: 12px; text-align: right; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e8eef5; }
+  .total-row td { font-weight: 700; background: #f4f8fc; border-top: 2px solid #4a90c2; }
+  .prod-card { background: #f4f8fc; border: 1px solid #d8e3ee; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+  .params-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+  .param { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #e8eef5; font-size: 12.5px; }
+  .param span:last-child { font-weight: 600; }
+  .metric-box { display:inline-block; background:#e2eef8; border-radius:8px; padding:10px 18px; margin-left:10px; }
+  .metric-box .val { font-size:20px; font-weight:700; color:#2e6b9a; }
+  .metric-box .lbl { font-size:11px; color:#7a8fa8; }
+  @media print { body { padding: 12px; } }
+</style>
+</head>
+<body>
+<h1>Chiarella · דוח עלויות יבוא</h1>
+<div class="meta">תאריך: ${date} &nbsp;·&nbsp; שער ₪/€: ${exch} &nbsp;·&nbsp; ${g('totalBottlesDisplay')}</div>
+
+<h2>פרמטרים</h2>
+<div class="params-grid">
+  <div>
+    <div class="param"><span>שילוח מכולת 20 פיט</span><span>${ship20} €</span></div>
+    <div class="param"><span>שילוח מכולת 40 פיט</span><span>${ship40} €</span></div>
+    <div class="param"><span>Fumigate למשטח</span><span>${palletFee} € × ${fumiPallets} משטחים</span></div>
+    <div class="param"><span>משרד הבריאות (פר שילוח)</span><span>${health} ₪</span></div>
+    <div class="param"><span>מיסי נמל (פר שילוח)</span><span>${port} ₪</span></div>
+  </div>
+  <div>
+    <div class="param"><span>עמילות מכס (פר שילוח)</span><span>${customs} ₪</span></div>
+    <div class="param"><span>ביטוח (פר שילוח)</span><span>${insurance} ₪</span></div>
+    <div class="param"><span>שילוח מקומי (למשטח)</span><span>${local} ₪ × ${localPallets}</span></div>
+    <div class="param"><span>אחסנה (למשטח)</span><span>${storage} ₪ × ${storagePallets}</span></div>
+    <div class="param"><span>פריקה (למשטח)</span><span>${unload} ₪ × ${unloadPallets}</span></div>
+    <div class="param"><span>שרינק (למשטח)</span><span>${shrink} ₪ × ${shrinkPallets}</span></div>
+  </div>
+</div>
+
+${bdRows ? `<h2>פירוט מכולות</h2>
+<table><thead><tr><th>מכולה</th><th>תוכן</th><th>ערך סחורה</th></tr></thead>
+<tbody>${bdRows}</tbody></table>` : ''}
+
+<h2>סיכום עלויות</h2>
+<table>
+  <thead><tr><th>סעיף</th><th style="text-align:left">€ אירו</th><th style="text-align:left">₪ שקל</th></tr></thead>
+  <tbody>
+    <tr><td>ערך סחורה</td><td style="text-align:left">${g('goodsValueEur')}</td><td style="text-align:left">${g('goodsValueIls')}</td></tr>
+    <tr><td>שילוח בינלאומי</td><td style="text-align:left">${g('shipDisplayEur')}</td><td style="text-align:left">${g('shipDisplayIls')}</td></tr>
+    <tr><td>תשלום למשטח Fumigate</td><td style="text-align:left">${g('palletFeeEur')}</td><td style="text-align:left">${g('palletFeeIls')}</td></tr>
+    <tr><td>אגרות, מכס, ביטוח</td><td style="text-align:left">${g('feesEur')}</td><td style="text-align:left">${g('feesIls')}</td></tr>
+    <tr><td>שילוח מקומי, אחסנה, פריקה, שרינק</td><td style="text-align:left">${g('localServicesEur')}</td><td style="text-align:left">${g('localServicesIls')}</td></tr>
+    <tr><td>נספחים נוספים</td><td style="text-align:left">${g('extrasDisplayEur')}</td><td style="text-align:left">${g('extrasDisplayIls')}</td></tr>
+    <tr class="total-row"><td>סה״כ עלות</td><td style="text-align:left">${g('totalEur')}</td><td style="text-align:left">${g('totalIls')}</td></tr>
+  </tbody>
+</table>
+
+<h2>עלות לבקבוק</h2>
+<div class="metric-box"><div class="val">${g('costPerBottleEur')} €</div><div class="lbl">עלות לבקבוק</div></div>
+<div class="metric-box" style="background:#f5edd9"><div class="val" style="color:#a8893f">${g('costPerBottleIls')} ₪</div><div class="lbl">עלות לבקבוק</div></div>
+
+${prodCards ? `<h2>פירוט לפי פורמט</h2>${prodCards}` : ''}
+
+</body>
+</html>`;
+
+    const w = window.open('', '_blank', 'width=800,height=900');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 400);
+  };
 
   window.exportExcel = function() {
     const date = new Date().toLocaleDateString('he-IL');
