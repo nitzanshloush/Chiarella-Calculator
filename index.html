@@ -1100,7 +1100,27 @@
   .card:nth-child(2) { animation-delay: 0.15s; }
   .summary-card { animation-delay: 0.2s; }
   .container-group.fresh { animation: scenarioIn 0.3s ease-out; }
-  @media print { .topbar { position: static; } body { background: white; } }
+  .export-btns {
+    display: flex; gap: 10px; align-items: center;
+  }
+  .btn-export {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--line);
+    background: var(--paper); color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+  .btn-export:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+  .btn-export.excel:hover { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+  .btn-export svg { flex-shrink: 0; }
+
+  @media print {
+    .topbar { position: static; }
+    body { background: white; }
+    .grid, .hero, .export-btns, .summary-badge { display: none !important; }
+    .summary-card { box-shadow: none; border: none; padding: 0; margin: 0; }
+    .summary-card::before { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -1332,7 +1352,19 @@
           <div class="hero-eyebrow">סיכום</div>
           <div class="summary-title">סיכום עלויות <em>מלא</em></div>
         </div>
-        <span class="summary-badge">ללא מע״מ</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="summary-badge">ללא מע״מ</span>
+          <div class="export-btns">
+            <button class="btn-export" onclick="exportPDF()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              PDF
+            </button>
+            <button class="btn-export excel" onclick="exportExcel()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+              Excel
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="scenario-breakdown" id="breakdownContainer"></div>
@@ -2312,6 +2344,53 @@
       const el = document.getElementById(id);
       if (el) el.addEventListener('input', calc);
     });
+
+  // ===== EXPORT =====
+  window.exportPDF = function() { window.print(); };
+
+  window.exportExcel = function() {
+    const date = new Date().toLocaleDateString('he-IL');
+    const exch = document.getElementById('exchangeRate').value || '—';
+
+    const rows = [
+      ['מחשבון יבוא Chiarella', '', ''],
+      ['תאריך: ' + date, 'שער ₪/€: ' + exch, ''],
+      ['', '', ''],
+      ['סעיף', '€ אירו', '₪ שקל'],
+    ];
+
+    const summaryRows = [
+      ['ערך סחורה',                          'goodsValueEur',    'goodsValueIls'],
+      ['שילוח בינלאומי',                     'shipDisplayEur',   'shipDisplayIls'],
+      ['תשלום למשטח Fumigate',               'palletFeeEur',     'palletFeeIls'],
+      ['אגרות, מכס, ביטוח',                  'feesEur',          'feesIls'],
+      ['שילוח מקומי, אחסנה, פריקה, שרינק',   'localServicesEur', 'localServicesIls'],
+      ['נספחים נוספים',                       'extrasDisplayEur', 'extrasDisplayIls'],
+      ['סה״כ עלות',                           'totalEur',         'totalIls'],
+    ];
+
+    summaryRows.forEach(([label, eurId, ilsId]) => {
+      const eur = document.getElementById(eurId)?.textContent || '—';
+      const ils = document.getElementById(ilsId)?.textContent || '—';
+      rows.push([label, eur, ils]);
+    });
+
+    rows.push(['', '', '']);
+    rows.push(['עלות לבקבוק (€)', document.getElementById('costPerBottleEur')?.textContent || '—', '']);
+    rows.push(['עלות לבקבוק (₪)', '', document.getElementById('costPerBottleIls')?.textContent || '—']);
+
+    // Build CSV with UTF-8 BOM for Hebrew in Excel
+    const bom = '﻿';
+    const csv = bom + rows.map(r => r.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chiarella-' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Initialize with one default container
   addContainer();
