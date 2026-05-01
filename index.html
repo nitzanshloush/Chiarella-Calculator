@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chiarella Import Calculator · מחשבון יבוא</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f8fc;
+    --bg-soft: #eaf1f8;
+    --paper: #ffffff;
+    --ink: #0f2942;
+    --ink-soft: #3d5774;
+    --ink-muted: #7a8fa8;
+    --line: #d8e3ee;
+    --line-soft: #e8eef5;
+    --primary: #4a90c2;
+    --primary-soft: #6ba8d4;
+    --primary-deep: #2e6b9a;
+    --primary-bg: #e2eef8;
+    --accent: #5fb3d4;
+    --accent-bg: #e0f0f7;
+    --gold: #c9a961;
+    --gold-deep: #a8893f;
+    --gold-bg: #f5edd9;
+    --success: #4a9d7e;
+    --success-bg: #dff0e8;
+    --danger: #c25555;
+    --danger-bg: #f5dada;
+    --shadow-soft: 0 1px 2px rgba(15, 41, 66, 0.04), 0 4px 12px rgba(15, 41, 66, 0.04);
+    --shadow-card: 0 1px 3px rgba(15, 41, 66, 0.06), 0 8px 24px rgba(15, 41, 66, 0.06);
+    --font: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    direction: rtl;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(74, 144, 194, 0.06) 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(95, 179, 212, 0.05) 0%, transparent 45%);
+    min-height: 100vh;
+  }
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .topbar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper);
+    font-size: 19px; font-weight: 700;
+    box-shadow: 0 2px 8px rgba(74, 144, 194, 0.25);
+  }
+  .brand-text h1 {
+    font-size: 18px; font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--ink); line-height: 1;
+  }
+  .brand-text p {
+    font-size: 11px; color: var(--ink-muted);
+    margin-top: 4px; letter-spacing: 0.05em;
+    text-transform: uppercase; font-weight: 600;
+  }
+  .topbar-meta {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 12px; color: var(--ink-muted); font-weight: 500;
+  }
+  .meta-item { display: flex; align-items: center; gap: 6px; }
+  .meta-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(74, 157, 126, 0.15);
+  }
+
+  .vat-disclaimer {
+    background: var(--gold-bg);
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--gold-deep);
+    letter-spacing: 0.02em;
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 40px 32px 80px; }
+  .hero { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+  .hero-eyebrow {
+    color: var(--primary); font-size: 14px;
+    margin-bottom: 10px; font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .hero h2 {
+    font-size: clamp(30px, 4.5vw, 44px);
+    font-weight: 700; letter-spacing: -0.025em; line-height: 1.15;
+    color: var(--ink); margin-bottom: 14px;
+  }
+  .hero h2 em { font-style: normal; color: var(--primary); font-weight: 700; }
+  .hero p {
+    font-size: 16px; color: var(--ink-soft);
+    max-width: 680px; line-height: 1.65; font-weight: 400;
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 980px) {
+    .grid { grid-template-columns: 1fr; }
+    .container { padding: 24px 20px 60px; }
+  }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px 30px;
+    box-shadow: var(--shadow-soft);
+    transition: box-shadow 0.3s ease;
+  }
+  .card:hover { box-shadow: var(--shadow-card); }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 22px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .card-title {
+    font-size: 19px; font-weight: 700;
+    letter-spacing: -0.015em; color: var(--ink);
+  }
+  .card-num {
+    font-size: 12px; color: var(--ink-muted); font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .field {
+    display: grid; grid-template-columns: 1fr auto; gap: 12px;
+    align-items: center; padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .field:last-child { border-bottom: none; }
+  .field label { font-size: 14.5px; color: var(--ink-soft); font-weight: 500; }
+  .field-input-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 7px; padding: 4px 12px;
+    transition: all 0.2s ease;
+  }
+  .field-input-wrap:focus-within {
+    border-color: var(--primary);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(74, 144, 194, 0.12);
+  }
+  .field input[type="number"] {
+    width: 110px; border: none; background: transparent;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 600;
+    color: var(--ink); text-align: left; direction: ltr;
+    padding: 5px 0; outline: none;
+  }
+  .field input[type="number"]::-webkit-outer-spin-button,
+  .field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .field input[type="number"] { -moz-appearance: textfield; }
+  .unit-symbol { font-size: 14px; color: var(--ink-muted); font-weight: 500; min-width: 14px; }
+  .unit-symbol.eur-tag { color: var(--primary-deep); font-weight: 700; }
+  .unit-symbol.ils-tag { color: var(--gold-deep); font-weight: 700; }
+
+  /* Per-pallet field with two inputs */
+  .field-twin-input {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .field-twin-divider {
+    color: var(--ink-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .pallet-count-wrap {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 4px 10px;
+    transition: all 0.2s;
+  }
+  .pallet-count-wrap:focus-within {
+    border-color: var(--primary);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(74, 144, 194, 0.12);
+  }
+  .pallet-count-wrap input {
+    width: 50px; border: none; background: transparent;
+    font-family: var(--font);
+    font-size: 13.5px; font-weight: 600;
+    color: var(--ink); text-align: left; direction: ltr;
+    padding: 5px 0; outline: none;
+  }
+  .pallet-count-wrap input::-webkit-outer-spin-button,
+  .pallet-count-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .pallet-count-wrap input { -moz-appearance: textfield; }
+  .pallet-count-label {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .field-with-pallets {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .field-with-pallets:last-child { border-bottom: none; }
+  .field-with-pallets-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .field-with-pallets-top label {
+    font-size: 14.5px; color: var(--ink-soft); font-weight: 500;
+  }
+  .field-with-pallets-bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding-right: 4px;
+  }
+  .pallets-hint {
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .ship-twin {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  @media (max-width: 600px) {
+    .ship-twin { grid-template-columns: 1fr; }
+  }
+  .ship-block {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .ship-block-label {
+    font-size: 11.5px; font-weight: 700; color: var(--ink-soft);
+    margin-bottom: 6px; letter-spacing: 0.03em;
+  }
+  .ship-block-input {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px; padding: 3px 10px;
+    transition: all 0.2s;
+  }
+  .ship-block-input:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 194, 0.12);
+  }
+  .ship-block-input input {
+    flex: 1; border: none; background: transparent;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 600;
+    color: var(--ink); text-align: left; direction: ltr;
+    padding: 4px 0; outline: none;
+    min-width: 0;
+  }
+
+  .scenarios-intro {
+    background: var(--primary-bg);
+    border-right: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .scenarios-intro strong {
+    color: var(--primary-deep);
+    font-weight: 700;
+  }
+
+  .container-group {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .container-group:hover {
+    box-shadow: var(--shadow-soft);
+    border-color: var(--primary-soft);
+  }
+  .container-group.size-40 {
+    border-color: rgba(201, 169, 97, 0.4);
+  }
+  .container-group.size-40:hover { border-color: var(--gold); }
+  .container-group-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .container-group.size-40 .container-group-header {
+    background: var(--gold-bg);
+    border-bottom-color: rgba(201, 169, 97, 0.3);
+  }
+  .container-group-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
+    background: var(--primary);
+    color: var(--paper);
+  }
+  .container-group.size-40 .container-group-tag { background: var(--gold-deep); }
+  .container-group-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .container-group-control-label {
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .container-group-control { display: flex; flex-direction: column; align-items: stretch; }
+  .container-group-select, .container-group-qty {
+    padding: 7px 10px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    transition: all 0.15s;
+    cursor: pointer;
+    min-width: 130px;
+  }
+  .container-group-qty {
+    width: 80px; min-width: 70px;
+    direction: ltr; text-align: left; cursor: text;
+  }
+  .container-group-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%237a8fa8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 8px center;
+    padding-left: 24px;
+  }
+  .container-group-select:focus, .container-group-qty:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 194, 0.1);
+  }
+
+  .product-slots { padding: 14px 18px; }
+  .product-slot {
+    display: grid;
+    grid-template-columns: 1.7fr 0.9fr 0.9fr 0.9fr 0.9fr 36px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  .product-slot:last-child { border-bottom: none; }
+  .product-slot-label {
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .product-slot-cell { display: flex; flex-direction: column; }
+  .product-slot-input, .product-slot-select {
+    width: 100%;
+    padding: 7px 9px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    transition: all 0.15s;
+  }
+  .product-slot-input { direction: ltr; text-align: left; }
+  .product-slot-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%237a8fa8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 8px center;
+    padding-left: 22px;
+    cursor: pointer;
+  }
+  .product-slot-input:focus, .product-slot-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background-color: var(--paper);
+    box-shadow: 0 0 0 2px rgba(74, 144, 194, 0.1);
+  }
+  .product-slot-input[type="number"]::-webkit-outer-spin-button,
+  .product-slot-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .product-slot-input[type="number"] { -moz-appearance: textfield; }
+  .product-slot-derived {
+    background: var(--primary-bg);
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-deep);
+    text-align: left;
+    direction: ltr;
+    border: 1px solid rgba(74, 144, 194, 0.3);
+  }
+  .container-group.size-40 .product-slot-derived {
+    background: var(--gold-bg);
+    color: var(--gold-deep);
+    border-color: rgba(201, 169, 97, 0.4);
+  }
+
+  .container-group-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 18px;
+    background: var(--bg);
+    border-top: 1px solid var(--line-soft);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .container-group-status {
+    font-size: 12.5px; color: var(--ink-soft); font-weight: 600;
+  }
+  .container-group-status .status-warning { color: var(--danger); }
+  .container-group-status .status-ok { color: var(--success); }
+
+  .btn-add-slot {
+    background: transparent;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-add-slot:hover {
+    border-color: var(--primary);
+    background: var(--primary-bg);
+    border-style: solid;
+  }
+  .btn-add-scenario {
+    width: 100%;
+    background: transparent;
+    border: 1.5px dashed var(--line);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn-add-scenario:hover {
+    border-color: var(--primary);
+    background: var(--primary-bg);
+    border-style: solid;
+  }
+
+  .extras-section { margin-top: 18px; padding-top: 18px; border-top: 1px dashed var(--line); }
+  .extras-title {
+    font-size: 13px; font-weight: 600; color: var(--ink-soft);
+    margin-bottom: 12px; letter-spacing: 0.03em;
+  }
+  .extra-row {
+    display: grid; grid-template-columns: 1fr 110px 60px 32px;
+    gap: 8px; align-items: center; margin-bottom: 8px;
+  }
+  .extra-row input, .extra-row select {
+    padding: 9px 11px; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 6px;
+    font-size: 13px; color: var(--ink); transition: all 0.15s;
+    font-family: var(--font);
+  }
+  .extra-row input[type="text"] { font-weight: 500; }
+  .extra-row input[type="number"] { font-weight: 600; direction: ltr; text-align: left; }
+  .extra-row select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%237a8fa8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 8px center;
+    padding-left: 22px;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+  }
+  .extra-row input:focus, .extra-row select:focus {
+    outline: none; border-color: var(--primary); background-color: var(--paper);
+    box-shadow: 0 0 0 2px rgba(74, 144, 194, 0.1);
+  }
+  .btn-icon {
+    width: 30px; height: 30px;
+    background: transparent; border: 1px solid var(--line);
+    border-radius: 6px; cursor: pointer;
+    color: var(--ink-muted); font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-icon:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+  .btn-add {
+    background: transparent; border: 1px dashed var(--line);
+    border-radius: 7px; padding: 10px 16px;
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    color: var(--ink-muted); cursor: pointer;
+    transition: all 0.2s; margin-top: 6px;
+  }
+  .btn-add:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+
+  .summary-card {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--paper) 0%, #f9fcff 100%);
+    border: 1px solid var(--line);
+    border-radius: 14px; padding: 36px 40px; margin-top: 12px;
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .summary-card::before {
+    content: ''; position: absolute;
+    top: -50%; right: -20%; width: 60%; height: 200%;
+    background: radial-gradient(circle, rgba(74, 144, 194, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .summary-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 30px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--line); position: relative;
+  }
+  .summary-title {
+    font-size: 26px; font-weight: 700;
+    letter-spacing: -0.02em; color: var(--ink);
+  }
+  .summary-title em { font-style: normal; color: var(--primary); }
+  .summary-badge {
+    font-size: 12px; font-weight: 600;
+    color: var(--ink-muted); padding: 6px 14px;
+    border: 1px solid var(--line); border-radius: 100px;
+    background: var(--paper);
+    letter-spacing: 0.04em;
+  }
+
+  .scenario-breakdown {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 24px; position: relative;
+  }
+  .scenario-breakdown-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    border-right-width: 4px;
+  }
+  .scenario-breakdown-row.s20 { border-right-color: var(--primary); }
+  .scenario-breakdown-row.s40 { border-right-color: var(--gold); }
+  .scenario-bd-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .scenario-bd-tag.s20 { background: var(--primary-bg); color: var(--primary-deep); }
+  .scenario-bd-tag.s40 { background: var(--gold-bg); color: var(--gold-deep); }
+  .scenario-bd-desc { font-size: 14px; color: var(--ink); font-weight: 500; }
+  .scenario-bd-desc strong { font-weight: 700; }
+  .scenario-bd-amount {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    direction: ltr; text-align: left;
+  }
+
+  .summary-rows { display: flex; flex-direction: column; gap: 0; margin-bottom: 28px; position: relative; }
+  .sum-row {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 16px; padding: 14px 0;
+    border-bottom: 1px solid var(--line-soft);
+    align-items: baseline;
+  }
+  .sum-row:last-child { border-bottom: none; }
+  .sum-row .sum-label { font-size: 14.5px; color: var(--ink-soft); font-weight: 500; }
+  .sum-row .sum-val {
+    font-family: var(--font);
+    font-size: 14.5px; color: var(--ink);
+    text-align: left; direction: ltr; font-weight: 600;
+  }
+  .sum-row.total {
+    border-top: 2px solid var(--primary); border-bottom: none;
+    padding-top: 18px; margin-top: 10px;
+  }
+  .sum-row.total .sum-label { font-size: 18px; font-weight: 700; color: var(--ink); }
+  .sum-row.total .sum-val { font-size: 22px; font-weight: 700; color: var(--primary-deep); }
+  .sum-headers {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 16px; padding: 0 0 10px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px; color: var(--ink-muted);
+    letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700;
+  }
+  .sum-headers .sh-amt { text-align: left; direction: ltr; }
+
+  .per-product-section {
+    margin-top: 28px; padding-top: 28px; border-top: 1px dashed var(--line);
+  }
+  .per-product-title {
+    font-size: 18px; font-weight: 700; color: var(--ink);
+    margin-bottom: 6px; letter-spacing: -0.01em;
+  }
+  .per-product-subtitle {
+    font-size: 13px; color: var(--ink-muted); margin-bottom: 18px;
+  }
+  .per-product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .product-cost-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 18px 22px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .product-cost-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+  .product-cost-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 4px; height: 100%;
+    background: var(--primary);
+  }
+  .product-cost-name {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    margin-bottom: 4px; letter-spacing: -0.01em;
+  }
+  .product-cost-meta {
+    font-size: 12px; color: var(--ink-muted);
+    font-weight: 500; margin-bottom: 14px;
+  }
+  .product-cost-values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .product-cost-cell { display: flex; flex-direction: column; }
+  .product-cost-cell-label {
+    font-size: 10.5px; color: var(--ink-muted);
+    font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .product-cost-cell-value {
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    direction: ltr; text-align: left;
+    letter-spacing: -0.02em; line-height: 1.1;
+  }
+  .product-cost-cell-value .currency {
+    font-size: 13px; color: var(--ink-muted);
+    font-weight: 500; margin-left: 4px;
+  }
+
+  .hero-metrics {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; margin-top: 28px; position: relative;
+  }
+  .hero-metric {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 11px; padding: 26px 30px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hero-metric:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .hero-metric::before {
+    content: ''; position: absolute;
+    top: 0; right: 0; width: 4px; height: 100%;
+    background: var(--primary);
+  }
+  .hero-metric.gold::before { background: var(--gold); }
+  .hero-metric-label {
+    font-size: 13px; color: var(--ink-muted); margin-bottom: 10px;
+    font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .hero-metric-value {
+    font-size: 38px; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.025em; line-height: 1;
+    direction: ltr; text-align: left;
+  }
+  .hero-metric-currency {
+    font-size: 20px; color: var(--ink-muted);
+    margin-left: 8px; font-weight: 500;
+  }
+  .hero-metric-sub {
+    font-size: 12.5px; color: var(--ink-muted);
+    margin-top: 10px; font-weight: 500;
+  }
+
+  .profit-section {
+    margin-top: 30px; padding-top: 26px;
+    border-top: 1px dashed var(--line); position: relative;
+  }
+  .profit-section-header { margin-bottom: 18px; }
+  .profit-section-title {
+    font-size: 19px; color: var(--ink); font-weight: 700;
+    letter-spacing: -0.01em; margin-bottom: 6px;
+  }
+  .profit-section-subtitle { font-size: 13px; color: var(--ink-muted); }
+  .profit-product-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    position: relative; overflow: hidden;
+  }
+  .profit-product-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 4px; height: 100%;
+    background: var(--primary);
+  }
+  .profit-product-head {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+    margin-bottom: 14px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .profit-product-name {
+    font-size: 16px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .profit-product-meta {
+    font-size: 12px; color: var(--ink-muted); font-weight: 500;
+  }
+  .profit-product-input-wrap { display: flex; align-items: center; gap: 8px; }
+  .profit-product-input-wrap label {
+    font-size: 12px; color: var(--ink-soft); font-weight: 600;
+  }
+  .profit-product-input-wrap input {
+    width: 110px; padding: 8px 12px;
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 6px; font-family: var(--font);
+    font-size: 14px; font-weight: 600;
+    direction: ltr; text-align: left;
+    color: var(--ink); transition: all 0.2s;
+  }
+  .profit-product-input-wrap input:focus {
+    outline: none; border-color: var(--success);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(74, 157, 126, 0.12);
+  }
+  .profit-product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  @media (max-width: 700px) {
+    .profit-product-grid { grid-template-columns: 1fr; }
+    .hero-metrics { grid-template-columns: 1fr; }
+    .summary-card { padding: 24px; }
+    .topbar-meta { display: none; }
+    .product-slot { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .container-group-header { grid-template-columns: 1fr; gap: 10px; }
+    .extra-row { grid-template-columns: 1fr 100px 50px 30px; gap: 6px; }
+  }
+
+  .profit-cell {
+    background: var(--success-bg);
+    border: 1px solid rgba(74, 157, 126, 0.25);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .profit-cell.negative {
+    background: var(--danger-bg);
+    border-color: rgba(194, 85, 85, 0.25);
+  }
+  .profit-cell.empty {
+    background: var(--bg);
+    border: 1px dashed var(--line);
+  }
+  .profit-cell-label {
+    font-size: 10.5px; color: var(--ink-muted);
+    margin-bottom: 6px; letter-spacing: 0.05em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .profit-cell-value {
+    font-size: 18px; font-weight: 700; color: var(--success);
+    direction: ltr; text-align: left;
+    letter-spacing: -0.015em; line-height: 1.2;
+  }
+  .profit-cell-secondary {
+    font-size: 12px; font-weight: 600; color: var(--ink-muted);
+    margin-top: 4px; direction: ltr; text-align: left;
+  }
+  .profit-cell.negative .profit-cell-value { color: var(--danger); }
+  .profit-empty {
+    padding: 28px; background: var(--bg);
+    border: 1px dashed var(--line); border-radius: 10px;
+    text-align: center; color: var(--ink-muted);
+    font-size: 14px; font-weight: 500;
+  }
+
+  /* CASHFLOW SECTION */
+  .cashflow-section {
+    margin-top: 36px;
+    padding-top: 32px;
+    border-top: 2px solid var(--line);
+    position: relative;
+  }
+  .cashflow-header { margin-bottom: 22px; }
+  .cashflow-title {
+    font-size: 22px; color: var(--ink); font-weight: 700;
+    letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .cashflow-subtitle {
+    font-size: 13.5px; color: var(--ink-muted); line-height: 1.55;
+  }
+  .cashflow-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  @media (max-width: 600px) { .cashflow-controls { grid-template-columns: 1fr; } }
+  .cashflow-control label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    letter-spacing: 0.03em;
+  }
+  .cashflow-input-wrap {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 7px; padding: 4px 12px;
+    transition: all 0.2s;
+  }
+  .cashflow-input-wrap:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 194, 0.12);
+  }
+  .cashflow-input-wrap input {
+    flex: 1; border: none; background: transparent;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 600;
+    color: var(--ink); text-align: left; direction: ltr;
+    padding: 5px 0; outline: none; min-width: 0;
+  }
+  .cashflow-input-wrap input::-webkit-outer-spin-button,
+  .cashflow-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .cashflow-control-hint {
+    font-size: 11.5px; color: var(--ink-muted);
+    margin-top: 5px; font-weight: 500;
+  }
+
+  .cashflow-flow {
+    display: grid; grid-template-columns: 1fr;
+    gap: 14px; margin-bottom: 24px;
+  }
+  .flow-block {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 18px 22px;
+    border-right-width: 4px;
+  }
+  .flow-block.out { border-right-color: var(--danger); }
+  .flow-block.in  { border-right-color: var(--success); }
+  .flow-block.tax { border-right-color: var(--gold); }
+  .flow-block-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700;
+    color: var(--ink); margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line-soft);
+    letter-spacing: -0.01em;
+  }
+  .flow-arrow {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .flow-block.out .flow-arrow { background: var(--danger-bg); color: var(--danger); }
+  .flow-block.in  .flow-arrow { background: var(--success-bg); color: var(--success); }
+  .flow-block.tax .flow-arrow { background: var(--gold-bg); color: var(--gold-deep); }
+  .flow-rows { display: flex; flex-direction: column; }
+  .flow-row {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 12px; padding: 8px 0;
+    align-items: baseline;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .flow-row:last-child { border-bottom: none; }
+  .flow-row.highlight {
+    background: var(--bg);
+    margin: 4px -10px;
+    padding: 10px;
+    border-radius: 6px;
+    border-bottom: none;
+  }
+  .flow-row.highlight .flow-row-label {
+    font-weight: 700; color: var(--ink);
+  }
+  .flow-row.highlight .flow-row-vals {
+    font-size: 14.5px; font-weight: 700;
+  }
+  .flow-row-label {
+    font-size: 13.5px; color: var(--ink-soft); font-weight: 500;
+  }
+  .flow-row-vals {
+    text-align: left; direction: ltr;
+    font-size: 13.5px; font-weight: 600;
+    color: var(--ink); font-family: var(--font);
+  }
+  .flow-row-secondary {
+    display: block;
+    font-size: 11.5px; color: var(--ink-muted);
+    font-weight: 500; margin-top: 1px;
+  }
+  .flow-divider { height: 1px; background: var(--line); margin: 8px 0; }
+  .flow-total {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 12px; padding-top: 12px; margin-top: 8px;
+    border-top: 2px solid var(--line);
+    align-items: baseline;
+  }
+  .flow-total > span:first-child {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+  }
+  .flow-total-vals {
+    text-align: left; direction: ltr;
+    font-size: 16px; font-weight: 700; color: var(--ink);
+  }
+  .flow-total-secondary {
+    display: block;
+    font-size: 12px; color: var(--ink-muted);
+    font-weight: 500; margin-top: 2px;
+  }
+
+  .net-profit-hero {
+    background: linear-gradient(135deg, var(--success-bg) 0%, #ebf5f0 100%);
+    border: 2px solid rgba(74, 157, 126, 0.3);
+    border-radius: 14px;
+    padding: 26px 32px;
+    text-align: center;
+    position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .net-profit-hero.loss {
+    background: linear-gradient(135deg, var(--danger-bg) 0%, #f7e3e3 100%);
+    border-color: rgba(194, 85, 85, 0.3);
+  }
+  .net-profit-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 50%;
+    background: radial-gradient(circle at 80% 50%, rgba(74, 157, 126, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .net-profit-hero.loss::before {
+    background: radial-gradient(circle at 80% 50%, rgba(194, 85, 85, 0.08) 0%, transparent 60%);
+  }
+  .net-profit-label {
+    font-size: 13px; font-weight: 700; color: var(--success);
+    text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 14px;
+  }
+  .net-profit-hero.loss .net-profit-label { color: var(--danger); }
+  .net-profit-values {
+    display: flex; align-items: baseline; justify-content: center;
+    gap: 18px; direction: ltr; flex-wrap: wrap;
+  }
+  .net-profit-main {
+    font-size: 44px; font-weight: 700; color: var(--success);
+    letter-spacing: -0.025em; line-height: 1;
+  }
+  .net-profit-hero.loss .net-profit-main { color: var(--danger); }
+  .net-profit-secondary {
+    font-size: 22px; font-weight: 600;
+    color: var(--ink-muted); letter-spacing: -0.015em;
+  }
+  .net-profit-currency {
+    font-size: 0.55em; color: var(--ink-muted);
+    margin-left: 6px; font-weight: 500;
+  }
+  .net-profit-main .net-profit-currency { color: rgba(74, 157, 126, 0.6); }
+  .net-profit-hero.loss .net-profit-main .net-profit-currency { color: rgba(194, 85, 85, 0.6); }
+  .net-profit-sub {
+    font-size: 13px; color: var(--ink-soft);
+    margin-top: 12px; font-weight: 500;
+  }
+  .cashflow-note {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: var(--gold-bg);
+    border-right: 3px solid var(--gold);
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .cashflow-note strong { color: var(--gold-deep); font-weight: 700; }
+  @media (max-width: 600px) {
+    .net-profit-main { font-size: 36px; }
+    .net-profit-secondary { font-size: 18px; }
+    .flow-block { padding: 14px 16px; }
+  }
+
+  .footer {
+    margin-top: 60px; padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--ink-muted); font-weight: 500;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scenarioIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card, .summary-card, .hero { animation: fadeUp 0.6s ease-out backwards; }
+  .hero { animation-delay: 0.05s; }
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.15s; }
+  .summary-card { animation-delay: 0.2s; }
+  .container-group.fresh { animation: scenarioIn 0.3s ease-out; }
+  @media print { .topbar { position: static; } body { background: white; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div class="brand-text">
+        <h1>CHIARELLA IMPORT CALCULATOR</h1>
+        <p>מחשבון יבוא · מותג מים</p>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <div class="vat-disclaimer">כל הסכומים ללא מע״מ</div>
+      <div class="meta-item">
+        <span class="meta-dot"></span>
+        <span>פעיל</span>
+      </div>
+      <div class="meta-item" id="dateDisplay"></div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <div class="hero-eyebrow">תחשיב עלויות יבוא</div>
+    <h2>חישוב <em>עלות</em> מותג המים<br/>שלך לישראל.</h2>
+    <p>הוסף מכולות וחלק את המשטחים בין פורמטים. עלויות סחורה ושילוח באירו, יתר ההוצאות בשקל. כל הסכומים <strong>ללא מע״מ</strong> — חברה בע״מ מקזזת מע״מ ולכן הוא לא חלק מחישוב העלות.</p>
+  </section>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">שער חליפין ושילוח בינלאומי</span>
+        <span class="card-num">01 / 03</span>
+      </div>
+
+      <div class="field">
+        <label>שער ₪/€</label>
+        <div class="field-input-wrap">
+          <input type="number" id="exchangeRate" value="3.47" step="0.01" />
+          <span class="unit-symbol">₪/€</span>
+        </div>
+      </div>
+
+      <div class="ship-twin" style="margin-top: 14px;">
+        <div class="ship-block">
+          <div class="ship-block-label">שילוח · מכולת 20 פיט</div>
+          <div class="ship-block-input">
+            <input type="number" id="shipCost20" value="2360" step="10" />
+            <span class="unit-symbol eur-tag">€</span>
+          </div>
+        </div>
+        <div class="ship-block">
+          <div class="ship-block-label">שילוח · מכולת 40 פיט</div>
+          <div class="ship-block-input">
+            <input type="number" id="shipCost40" value="3800" step="10" />
+            <span class="unit-symbol eur-tag">€</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px; padding: 12px 14px; background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5;">
+        <strong style="color: var(--ink); font-weight: 700;">איפה כל הוצאה מוזנת:</strong><br/>
+        • <strong>סחורה</strong> — לפי מחיר ליחידה בכל פורמט בתרחישי המכולות<br/>
+        • <strong>שילוח בינלאומי</strong> — כאן בכרטיס זה, באירו<br/>
+        • <strong>תשלום למשטח Fumigate</strong> — בעלויות נוספות, באירו<br/>
+        • <strong>אגרות, מכס, שילוח מקומי</strong> — בעלויות נוספות, בשקל
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">עלויות נוספות</span>
+        <span class="card-num">02 / 03</span>
+      </div>
+
+      <!-- EUR-denominated section -->
+      <div style="margin-bottom: 6px; font-size: 11.5px; color: var(--primary-deep); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">הוצאות באירו €</div>
+
+      <div class="field-with-pallets">
+        <div class="field-with-pallets-top">
+          <label>תשלום למשטח Fumigate (€ למשטח)</label>
+          <div class="field-input-wrap">
+            <input type="number" id="palletFee" value="25" step="1" />
+            <span class="unit-symbol eur-tag">€</span>
+          </div>
+        </div>
+        <div class="field-with-pallets-bottom">
+          <span class="pallets-hint">× כמות משטחים:</span>
+          <div class="pallet-count-wrap">
+            <input type="number" id="palletFeeCount" value="0" step="1" min="0" />
+            <span class="pallet-count-label">משטחים</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin: 18px 0 6px; font-size: 11.5px; color: var(--gold-deep); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">הוצאות בשקל ₪</div>
+
+      <div class="field">
+        <label>משרד הבריאות (פר מכולה)</label>
+        <div class="field-input-wrap">
+          <input type="number" id="health" value="520" step="10" />
+          <span class="unit-symbol ils-tag">₪</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>מיסי נמל (פר מכולה)</label>
+        <div class="field-input-wrap">
+          <input type="number" id="port" value="1560" step="10" />
+          <span class="unit-symbol ils-tag">₪</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>עמילות מכס (פר מכולה)</label>
+        <div class="field-input-wrap">
+          <input type="number" id="customs" value="350" step="10" />
+          <span class="unit-symbol ils-tag">₪</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>כשרות (פר מכולה)</label>
+        <div class="field-input-wrap">
+          <input type="number" id="kosher" value="500" step="10" />
+          <span class="unit-symbol ils-tag">₪</span>
+        </div>
+      </div>
+
+      <!-- Per-pallet fields with custom pallet count -->
+      <div class="field-with-pallets">
+        <div class="field-with-pallets-top">
+          <label>שילוח מקומי (₪ למשטח)</label>
+          <div class="field-input-wrap">
+            <input type="number" id="local" value="90" step="5" />
+            <span class="unit-symbol ils-tag">₪</span>
+          </div>
+        </div>
+        <div class="field-with-pallets-bottom">
+          <span class="pallets-hint">× כמות משטחים:</span>
+          <div class="pallet-count-wrap">
+            <input type="number" id="localPallets" value="0" step="1" min="0" />
+            <span class="pallet-count-label">משטחים</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-with-pallets">
+        <div class="field-with-pallets-top">
+          <label>אחסנה בארץ (₪ למשטח)</label>
+          <div class="field-input-wrap">
+            <input type="number" id="storage" value="20" step="5" />
+            <span class="unit-symbol ils-tag">₪</span>
+          </div>
+        </div>
+        <div class="field-with-pallets-bottom">
+          <span class="pallets-hint">× כמות משטחים:</span>
+          <div class="pallet-count-wrap">
+            <input type="number" id="storagePallets" value="0" step="1" min="0" />
+            <span class="pallet-count-label">משטחים</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-with-pallets">
+        <div class="field-with-pallets-top">
+          <label>פריקת מכולה (₪ למשטח)</label>
+          <div class="field-input-wrap">
+            <input type="number" id="unload" value="25" step="5" />
+            <span class="unit-symbol ils-tag">₪</span>
+          </div>
+        </div>
+        <div class="field-with-pallets-bottom">
+          <span class="pallets-hint">× כמות משטחים:</span>
+          <div class="pallet-count-wrap">
+            <input type="number" id="unloadPallets" value="0" step="1" min="0" />
+            <span class="pallet-count-label">משטחים</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="extras-section">
+        <div class="extras-title">נספחים נוספים (חד פעמי, לא פר מכולה)</div>
+        <div id="extraRows"></div>
+        <button class="btn-add" onclick="addExtra()">+ הוסף שורת הוצאה</button>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-header">
+        <span class="card-title">תרחישי מכולות ומוצרים</span>
+        <span class="card-num">03 / 03</span>
+      </div>
+
+      <div class="scenarios-intro">
+        כל מכולה היא <strong>בלוק עצמאי</strong> עם 12 משטחים (20 פיט) או 25 משטחים (40 פיט). בתוך כל מכולה ניתן להוסיף מספר פורמטים שונים ולחלק ביניהם את המשטחים. מחירי הסחורה <strong>באירו (€)</strong>.
+      </div>
+
+      <div id="scenarioRows"></div>
+
+      <button class="btn-add-scenario" onclick="addContainer()">+ הוסף מכולה</button>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-header">
+        <div>
+          <div class="hero-eyebrow">סיכום</div>
+          <div class="summary-title">סיכום עלויות <em>מלא</em></div>
+        </div>
+        <span class="summary-badge">ללא מע״מ</span>
+      </div>
+
+      <div class="scenario-breakdown" id="breakdownContainer"></div>
+
+      <div class="sum-headers">
+        <span>סעיף</span>
+        <span class="sh-amt">€ אירו</span>
+        <span class="sh-amt">₪ שקל</span>
+      </div>
+
+      <div class="summary-rows">
+        <div class="sum-row">
+          <span class="sum-label">ערך סחורה (FOB)</span>
+          <span class="sum-val" id="goodsValueEur">—</span>
+          <span class="sum-val" id="goodsValueIls">—</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-label">שילוח בינלאומי</span>
+          <span class="sum-val" id="shipDisplayEur">—</span>
+          <span class="sum-val" id="shipDisplayIls">—</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-label">תשלום למשטח Fumigate</span>
+          <span class="sum-val" id="palletFeeEur">—</span>
+          <span class="sum-val" id="palletFeeIls">—</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-label">אגרות, מכס, כשרות</span>
+          <span class="sum-val" id="feesEur">—</span>
+          <span class="sum-val" id="feesIls">—</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-label">שילוח מקומי, אחסנה, פריקה</span>
+          <span class="sum-val" id="localServicesEur">—</span>
+          <span class="sum-val" id="localServicesIls">—</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-label">נספחים נוספים</span>
+          <span class="sum-val" id="extrasDisplayEur">—</span>
+          <span class="sum-val" id="extrasDisplayIls">—</span>
+        </div>
+        <div class="sum-row total">
+          <span class="sum-label">סה״כ עלות</span>
+          <span class="sum-val" id="totalEur">—</span>
+          <span class="sum-val" id="totalIls">—</span>
+        </div>
+      </div>
+
+      <div class="hero-metrics">
+        <div class="hero-metric">
+          <div class="hero-metric-label">עלות ממוצעת לבקבוק</div>
+          <div class="hero-metric-value">
+            <span id="costPerBottleEur">—</span><span class="hero-metric-currency">€</span>
+          </div>
+          <div class="hero-metric-sub" id="totalBottlesDisplay">—</div>
+        </div>
+        <div class="hero-metric gold">
+          <div class="hero-metric-label">עלות ממוצעת לבקבוק</div>
+          <div class="hero-metric-value">
+            <span id="costPerBottleIls">—</span><span class="hero-metric-currency">₪</span>
+          </div>
+          <div class="hero-metric-sub">לפי שער <span id="rateDisplay">3.47</span> ₪/€</div>
+        </div>
+      </div>
+
+      <div class="per-product-section">
+        <div class="per-product-title">עלות לבקבוק · לפי פורמט</div>
+        <div class="per-product-subtitle">פירוט עלות לכל סוג בקבוק. עלויות סחורה, שילוח ותשלום למשטח לפי המכולות שמובילות אותו, ועלויות משותפות (אגרות, מכס, שילוח מקומי, אחסנה, פריקה, נספחים) מתחלקות פרופורציונלית לפי כמות בקבוקים.</div>
+        <div class="per-product-grid" id="perProductGrid"></div>
+      </div>
+
+      <div class="profit-section">
+        <div class="profit-section-header">
+          <div class="profit-section-title">חישוב רווח · לפי פורמט</div>
+          <div class="profit-section-subtitle">הזן מחיר מכירה (בשקלים, ללא מע״מ) לכל פורמט בנפרד וקבל רווח לבקבוק, אחוז רווח, וסה״כ רווח לפורמט הזה.</div>
+        </div>
+        <div id="profitContainer">
+          <div class="profit-empty">הוסף מכולה כדי לראות חישוב רווח לפי פורמט</div>
+        </div>
+      </div>
+
+      <div class="cashflow-section" id="cashflowSection" style="display:none;">
+        <div class="cashflow-header">
+          <div class="cashflow-title">תזרים ורווח נטו של החברה</div>
+          <div class="cashflow-subtitle">חישוב רווח נטו אחרי מס חברות. כל הסכומים ללא מע״מ — מכיוון שמע״מ מקוזז במלואו ולא משפיע על הרווחיות.</div>
+        </div>
+
+        <div class="cashflow-controls">
+          <div class="cashflow-control">
+            <label>הוצאות תפעול נוספות (₪, אופציונלי)</label>
+            <div class="cashflow-input-wrap">
+              <input type="number" id="opex" value="0" step="100" placeholder="0" />
+              <span class="unit-symbol ils-tag">₪</span>
+            </div>
+            <div class="cashflow-control-hint">שכר רו״ח, שיווק, תקורה — מה שלא נכלל ביבוא עצמו</div>
+          </div>
+          <div class="cashflow-control">
+            <label>שיעור מס חברות</label>
+            <div class="cashflow-input-wrap">
+              <input type="number" id="corpTaxRate" value="23" step="0.5" />
+              <span class="unit-symbol">%</span>
+            </div>
+            <div class="cashflow-control-hint">בישראל: 23% (2026)</div>
+          </div>
+        </div>
+
+        <div class="cashflow-flow">
+          <div class="flow-block out">
+            <div class="flow-block-title">
+              <span class="flow-arrow">↓</span>
+              עלויות (יציאות)
+            </div>
+            <div class="flow-rows" id="cfOutRows"></div>
+            <div class="flow-total">
+              <span>סה״כ עלויות</span>
+              <div class="flow-total-vals">
+                <span id="cfOutTotalIls">—</span>
+                <span class="flow-total-secondary" id="cfOutTotalEur">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-block in">
+            <div class="flow-block-title">
+              <span class="flow-arrow">↑</span>
+              הכנסות ממכירות
+            </div>
+            <div class="flow-rows" id="cfInRows"></div>
+            <div class="flow-total">
+              <span>סה״כ הכנסות</span>
+              <div class="flow-total-vals">
+                <span id="cfInTotalIls">—</span>
+                <span class="flow-total-secondary" id="cfInTotalEur">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-block tax">
+            <div class="flow-block-title">
+              <span class="flow-arrow">⇌</span>
+              חישוב מס
+            </div>
+            <div class="flow-rows">
+              <div class="flow-row highlight">
+                <span class="flow-row-label">רווח גולמי לפני מס</span>
+                <div class="flow-row-vals">
+                  <span id="cfGrossIls">—</span>
+                  <span class="flow-row-secondary" id="cfGrossEur">—</span>
+                </div>
+              </div>
+              <div class="flow-row" id="cfOpexRow" style="display:none;">
+                <span class="flow-row-label">פחות: הוצאות תפעול נוספות</span>
+                <div class="flow-row-vals">
+                  <span id="cfOpexIls">—</span>
+                  <span class="flow-row-secondary" id="cfOpexEur">—</span>
+                </div>
+              </div>
+              <div class="flow-row highlight">
+                <span class="flow-row-label">רווח חייב במס</span>
+                <div class="flow-row-vals">
+                  <span id="cfTaxableIls">—</span>
+                  <span class="flow-row-secondary" id="cfTaxableEur">—</span>
+                </div>
+              </div>
+              <div class="flow-row">
+                <span class="flow-row-label">פחות: מס חברות (<span id="cfTaxRateDisplay">23</span>%)</span>
+                <div class="flow-row-vals">
+                  <span id="cfCorpTaxIls">—</span>
+                  <span class="flow-row-secondary" id="cfCorpTaxEur">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="net-profit-hero" id="netProfitHero">
+          <div class="net-profit-label">רווח נטו אחרי מס חברות</div>
+          <div class="net-profit-values">
+            <div class="net-profit-main">
+              <span id="netProfitIls">—</span>
+              <span class="net-profit-currency">₪</span>
+            </div>
+            <div class="net-profit-secondary">
+              <span id="netProfitEur">—</span>
+              <span class="net-profit-currency">€</span>
+            </div>
+          </div>
+          <div class="net-profit-sub" id="netProfitSub">—</div>
+        </div>
+
+        <div class="cashflow-note" id="cashflowLossNote" style="display:none;">
+          <strong>הערה:</strong> בהפסד אין חבות במס חברות. ההפסד יכול להתקזז מרווחים בשנים עתידיות (העברת הפסדים).
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div>Chiarella Import Calculator · all values editable in real-time · ללא מע״מ</div>
+    <div>built for clarity, not for show</div>
+  </footer>
+
+</main>
+
+<script>
+(function() {
+  const PALLETS_20 = 12;
+  const PALLETS_40 = 25;
+
+  const productCatalog = [
+    { id: 0, name: '0.5L PET',            defaultPrice: 0.10, bottlesPerPallet: 1728 },
+    { id: 1, name: '0.66L PET',           defaultPrice: 0.18, bottlesPerPallet: 1512 },
+    { id: 2, name: '1.5L PET',            defaultPrice: 0.20, bottlesPerPallet: 630  },
+    { id: 3, name: '0.70L Symposion VAP', defaultPrice: 0.78, bottlesPerPallet: 648  },
+    { id: 4, name: '0.92L Symposion VAP', defaultPrice: 0.80, bottlesPerPallet: 648  }
+  ];
+
+  let containers = [];
+  let containerCounter = 0;
+  let slotCounter = 0;
+  let extras = []; // each: { label, amount, currency: 'EUR'|'ILS' }
+  let sellPrices = {};
+
+  const today = new Date();
+  const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  document.getElementById('dateDisplay').textContent =
+    today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
+
+  // ===== CONTAINER MANAGEMENT =====
+  window.addContainer = function() {
+    containerCounter++;
+    slotCounter++;
+    containers.push({
+      id: containerCounter,
+      size: 20,
+      qty: 1,
+      slots: [{
+        slotId: slotCounter,
+        productId: 0,
+        pallets: PALLETS_20,
+        customPrice: productCatalog[0].defaultPrice
+      }],
+      isFresh: true
+    });
+    renderContainers();
+    autoFillPalletCounts();
+    calc();
+  };
+
+  function delContainer(id) {
+    containers = containers.filter(c => c.id !== id);
+    renderContainers();
+    autoFillPalletCounts();
+    calc();
+  }
+
+  function addSlot(containerId) {
+    const c = containers.find(x => x.id === containerId);
+    if (!c) return;
+    slotCounter++;
+    const usedProducts = c.slots.map(s => s.productId);
+    const newProduct = productCatalog.find(p => !usedProducts.includes(p.id)) || productCatalog[0];
+    c.slots.push({
+      slotId: slotCounter,
+      productId: newProduct.id,
+      pallets: 0,
+      customPrice: newProduct.defaultPrice
+    });
+    renderContainers();
+    autoFillPalletCounts();
+    calc();
+  }
+
+  function delSlot(containerId, slotId) {
+    const c = containers.find(x => x.id === containerId);
+    if (!c) return;
+    if (c.slots.length <= 1) {
+      delContainer(containerId);
+      return;
+    }
+    c.slots = c.slots.filter(s => s.slotId !== slotId);
+    renderContainers();
+    autoFillPalletCounts();
+    calc();
+  }
+
+  // Auto-fill pallet counts in additional costs based on actually allocated pallets across all containers
+  function autoFillPalletCounts() {
+    let totalAllocatedPallets = 0;
+    containers.forEach(cont => {
+      cont.slots.forEach(slot => {
+        totalAllocatedPallets += slot.pallets * cont.qty;
+      });
+    });
+    // Sync all per-pallet counts to the total — user can override manually
+    ['localPallets','storagePallets','unloadPallets','palletFeeCount'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = totalAllocatedPallets;
+    });
+  }
+
+  function renderContainers() {
+    const c = document.getElementById('scenarioRows');
+    c.innerHTML = '';
+
+    if (containers.length === 0) {
+      c.innerHTML =
+        '<div style="padding: 24px; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; text-align: center; color: var(--ink-muted); font-size: 14px;">' +
+          'אין מכולות עדיין — לחץ על "הוסף מכולה" למטה כדי להתחיל' +
+        '</div>';
+      return;
+    }
+
+    containers.forEach(cont => {
+      const palletsPerContainer = cont.size === 20 ? PALLETS_20 : PALLETS_40;
+      const totalPalletsAvailable = palletsPerContainer * cont.qty;
+      const usedPallets = cont.slots.reduce((sum, s) => sum + s.pallets, 0);
+      const remainingPallets = totalPalletsAvailable - usedPallets;
+
+      const group = document.createElement('div');
+      group.className = 'container-group size-' + cont.size + (cont.isFresh ? ' fresh' : '');
+
+      let headerHtml =
+        '<div class="container-group-header">' +
+          '<span class="container-group-tag">מכולה ' + cont.id + '</span>' +
+          '<span class="container-group-title">' + cont.size + ' פיט · ' + palletsPerContainer + ' משטחים' + (cont.qty > 1 ? ' × ' + cont.qty : '') + '</span>' +
+          '<div class="container-group-control">' +
+            '<div class="container-group-control-label">סוג</div>' +
+            '<select class="container-group-select" data-cid="' + cont.id + '" data-f="size">' +
+              '<option value="20"' + (cont.size === 20 ? ' selected' : '') + '>20 פיט</option>' +
+              '<option value="40"' + (cont.size === 40 ? ' selected' : '') + '>40 פיט</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="container-group-control">' +
+            '<div class="container-group-control-label">כמות מכולות</div>' +
+            '<input class="container-group-qty" type="number" min="1" step="1" value="' + cont.qty + '" data-cid="' + cont.id + '" data-f="qty" />' +
+          '</div>' +
+          '<button class="btn-icon" data-del-cont="' + cont.id + '" title="מחק מכולה">×</button>' +
+        '</div>';
+
+      let slotsHtml = '<div class="product-slots">';
+      cont.slots.forEach(slot => {
+        const product = productCatalog.find(p => p.id === slot.productId);
+        const totalBottles = slot.pallets * product.bottlesPerPallet;
+        const productOptions = productCatalog.map(p =>
+          '<option value="' + p.id + '"' + (p.id === slot.productId ? ' selected' : '') + '>' + p.name + '</option>'
+        ).join('');
+
+        slotsHtml +=
+          '<div class="product-slot">' +
+            '<div class="product-slot-cell">' +
+              '<div class="product-slot-label">פורמט</div>' +
+              '<select class="product-slot-select" data-cid="' + cont.id + '" data-sid="' + slot.slotId + '" data-f="product">' + productOptions + '</select>' +
+            '</div>' +
+            '<div class="product-slot-cell">' +
+              '<div class="product-slot-label">מחיר ליחידה €</div>' +
+              '<input class="product-slot-input" type="number" step="0.01" value="' + slot.customPrice + '" data-cid="' + cont.id + '" data-sid="' + slot.slotId + '" data-f="price" />' +
+            '</div>' +
+            '<div class="product-slot-cell">' +
+              '<div class="product-slot-label">משטחים</div>' +
+              '<input class="product-slot-input" type="number" min="0" step="1" value="' + slot.pallets + '" data-cid="' + cont.id + '" data-sid="' + slot.slotId + '" data-f="pallets" />' +
+            '</div>' +
+            '<div class="product-slot-cell">' +
+              '<div class="product-slot-label">בקבוקים/משטח</div>' +
+              '<div class="product-slot-derived">' + product.bottlesPerPallet.toLocaleString('en-US') + '</div>' +
+            '</div>' +
+            '<div class="product-slot-cell">' +
+              '<div class="product-slot-label">סה״כ בקבוקים</div>' +
+              '<div class="product-slot-derived">' + totalBottles.toLocaleString('en-US') + '</div>' +
+            '</div>' +
+            '<button class="btn-icon" data-del-slot="' + slot.slotId + '" data-cid="' + cont.id + '" title="מחק" style="margin-top: 16px;">×</button>' +
+          '</div>';
+      });
+      slotsHtml += '</div>';
+
+      let statusText, statusClass;
+      if (remainingPallets > 0) {
+        statusText = '✓ נותרו ' + remainingPallets + ' משטחים פנויים מתוך ' + totalPalletsAvailable;
+        statusClass = '';
+      } else if (remainingPallets === 0) {
+        statusText = '✓ המכולה מלאה — נוצלו כל ' + totalPalletsAvailable + ' המשטחים';
+        statusClass = 'status-ok';
+      } else {
+        statusText = '⚠ חריגה: שובצו ' + usedPallets + ' משטחים מתוך ' + totalPalletsAvailable + ' זמינים';
+        statusClass = 'status-warning';
+      }
+
+      const footerHtml =
+        '<div class="container-group-footer">' +
+          '<div class="container-group-status"><span class="' + statusClass + '">' + statusText + '</span></div>' +
+          '<button class="btn-add-slot" data-add-slot="' + cont.id + '">+ הוסף פורמט נוסף למכולה</button>' +
+        '</div>';
+
+      group.innerHTML = headerHtml + slotsHtml + footerHtml;
+      c.appendChild(group);
+      cont.isFresh = false;
+    });
+
+    c.querySelectorAll('select[data-cid][data-f="size"]').forEach(el => el.addEventListener('change', handleContainerChange));
+    c.querySelectorAll('input[data-cid][data-f="qty"]').forEach(el => el.addEventListener('input', handleContainerChange));
+    c.querySelectorAll('select[data-cid][data-sid]').forEach(el => el.addEventListener('change', handleSlotChange));
+    c.querySelectorAll('input[data-cid][data-sid]').forEach(el => el.addEventListener('input', handleSlotChange));
+    c.querySelectorAll('button[data-del-cont]').forEach(btn => btn.addEventListener('click', ev => delContainer(parseInt(ev.currentTarget.dataset.delCont))));
+    c.querySelectorAll('button[data-del-slot]').forEach(btn => btn.addEventListener('click', ev => delSlot(parseInt(ev.currentTarget.dataset.cid), parseInt(ev.currentTarget.dataset.delSlot))));
+    c.querySelectorAll('button[data-add-slot]').forEach(btn => btn.addEventListener('click', ev => addSlot(parseInt(ev.currentTarget.dataset.addSlot))));
+  }
+
+  function handleContainerChange(ev) {
+    const cid = parseInt(ev.target.dataset.cid);
+    const f = ev.target.dataset.f;
+    const cont = containers.find(x => x.id === cid);
+    if (!cont) return;
+
+    if (f === 'size') {
+      const newSize = parseInt(ev.target.value);
+      cont.size = newSize;
+      const newCap = (newSize === 20 ? PALLETS_20 : PALLETS_40) * cont.qty;
+      const used = cont.slots.reduce((s, sl) => s + sl.pallets, 0);
+      if (used > newCap && cont.slots.length === 1) {
+        cont.slots[0].pallets = newSize === 20 ? PALLETS_20 : PALLETS_40;
+      }
+      renderContainers();
+    } else if (f === 'qty') {
+      const v = parseInt(ev.target.value) || 1;
+      cont.qty = Math.max(1, v);
+      renderContainers();
+    }
+    autoFillPalletCounts();
+    calc();
+  }
+
+  function handleSlotChange(ev) {
+    const cid = parseInt(ev.target.dataset.cid);
+    const sid = parseInt(ev.target.dataset.sid);
+    const f = ev.target.dataset.f;
+    const cont = containers.find(x => x.id === cid);
+    if (!cont) return;
+    const slot = cont.slots.find(s => s.slotId === sid);
+    if (!slot) return;
+
+    if (f === 'product') {
+      const newProductId = parseInt(ev.target.value);
+      slot.productId = newProductId;
+      slot.customPrice = productCatalog.find(p => p.id === newProductId).defaultPrice;
+      renderContainers();
+    } else if (f === 'pallets') {
+      slot.pallets = Math.max(0, parseInt(ev.target.value) || 0);
+      renderContainers();
+      autoFillPalletCounts();
+    } else if (f === 'price') {
+      slot.customPrice = parseFloat(ev.target.value) || 0;
+    }
+    calc();
+  }
+
+  // ===== EXTRAS =====
+  window.addExtra = function() {
+    extras.push({ label: '', amount: 0, currency: 'ILS' });
+    renderExtras();
+  };
+
+  function delExtra(i) {
+    extras.splice(i, 1);
+    renderExtras();
+    calc();
+  }
+
+  function renderExtras() {
+    const c = document.getElementById('extraRows');
+    c.innerHTML = '';
+    extras.forEach((e, i) => {
+      const row = document.createElement('div');
+      row.className = 'extra-row';
+      row.innerHTML =
+        '<input type="text" placeholder="תיאור הוצאה" value="' + e.label.replace(/"/g, '&quot;') + '" data-i="' + i + '" data-f="label" />' +
+        '<input type="number" step="1" value="' + e.amount + '" data-i="' + i + '" data-f="amount" placeholder="0" />' +
+        '<select data-i="' + i + '" data-f="currency">' +
+          '<option value="ILS"' + (e.currency === 'ILS' ? ' selected' : '') + '>₪</option>' +
+          '<option value="EUR"' + (e.currency === 'EUR' ? ' selected' : '') + '>€</option>' +
+        '</select>' +
+        '<button class="btn-icon" data-del="' + i + '" title="מחק">×</button>';
+      c.appendChild(row);
+    });
+    c.querySelectorAll('input, select').forEach(el => {
+      el.addEventListener('input', handleExtraChange);
+      el.addEventListener('change', handleExtraChange);
+    });
+    c.querySelectorAll('button[data-del]').forEach(btn => {
+      btn.addEventListener('click', ev => delExtra(parseInt(ev.currentTarget.dataset.del)));
+    });
+  }
+
+  function handleExtraChange(ev) {
+    const i = parseInt(ev.target.dataset.i);
+    const f = ev.target.dataset.f;
+    if (f === 'label')   extras[i].label = ev.target.value;
+    if (f === 'amount')  { extras[i].amount = parseFloat(ev.target.value) || 0; calc(); }
+    if (f === 'currency') { extras[i].currency = ev.target.value; calc(); }
+  }
+
+  // ===== FORMATTERS =====
+  function fmtEur(n) {
+    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+  function fmtIls(n) {
+    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₪';
+  }
+  function fmtIlsRound(n) {
+    return n.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' ₪';
+  }
+  function fmtEurRound(n) {
+    return n.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' €';
+  }
+
+  // ===== MAIN CALC =====
+  function calc() {
+    const exch = parseFloat(document.getElementById('exchangeRate').value) || 1;
+
+    // EUR-denominated inputs
+    const ship20Eur          = parseFloat(document.getElementById('shipCost20').value) || 0;
+    const ship40Eur          = parseFloat(document.getElementById('shipCost40').value) || 0;
+    const palletFeePerEur    = parseFloat(document.getElementById('palletFee').value) || 0;
+    const palletFeeCount     = parseInt(document.getElementById('palletFeeCount').value) || 0;
+
+    // ILS-denominated inputs (per container, fixed)
+    const healthIls   = parseFloat(document.getElementById('health').value) || 0;
+    const portIls     = parseFloat(document.getElementById('port').value) || 0;
+    const customsIls  = parseFloat(document.getElementById('customs').value) || 0;
+    const kosherIls   = parseFloat(document.getElementById('kosher').value) || 0;
+
+    // ILS per-pallet inputs
+    const localPerPalletIls   = parseFloat(document.getElementById('local').value) || 0;
+    const storagePerPalletIls = parseFloat(document.getElementById('storage').value) || 0;
+    const unloadPerPalletIls  = parseFloat(document.getElementById('unload').value) || 0;
+
+    // ILS per-pallet quantities (independently editable)
+    const localPalletsCount   = parseInt(document.getElementById('localPallets').value) || 0;
+    const storagePalletsCount = parseInt(document.getElementById('storagePallets').value) || 0;
+    const unloadPalletsCount  = parseInt(document.getElementById('unloadPallets').value) || 0;
+
+    // Total pallet fee (EUR) — based on manual count
+    const totalPalletFeeEur = palletFeePerEur * palletFeeCount;
+
+    // Group by product
+    const byProduct = {};
+    let totalContainerCount = 0;
+    let totalAllocatedPallets = 0;
+
+    containers.forEach(cont => {
+      const slotsBottles = cont.slots.map(s => {
+        const p = productCatalog.find(pp => pp.id === s.productId);
+        return s.pallets * p.bottlesPerPallet;
+      });
+      const containerTotalBottles = slotsBottles.reduce((a, b) => a + b, 0);
+      const slotShipEur = cont.size === 20 ? ship20Eur : ship40Eur;
+
+      cont.slots.forEach(slot => {
+        const product = productCatalog.find(p => p.id === slot.productId);
+        if (!product) return;
+        const bottlesPerSingleContainer = slot.pallets * product.bottlesPerPallet;
+        const totalBottles = bottlesPerSingleContainer * cont.qty;
+        const goodsEur = totalBottles * slot.customPrice;
+
+        // Ship allocated by bottle proportion within container
+        const shipPerSingleContainerEur = containerTotalBottles > 0
+          ? slotShipEur * (bottlesPerSingleContainer / containerTotalBottles)
+          : 0;
+        const shipEur = shipPerSingleContainerEur * cont.qty;
+
+        const totalPalletsForSlot = slot.pallets * cont.qty;
+
+        if (!byProduct[slot.productId]) {
+          byProduct[slot.productId] = {
+            productId: slot.productId,
+            productName: product.name,
+            bottles: 0,
+            goods: 0,           // EUR (direct)
+            ship: 0,            // EUR (direct)
+            allocatedPallets: 0
+          };
+        }
+        byProduct[slot.productId].bottles += totalBottles;
+        byProduct[slot.productId].goods += goodsEur;
+        byProduct[slot.productId].ship += shipEur;
+        byProduct[slot.productId].allocatedPallets += totalPalletsForSlot;
+
+        totalAllocatedPallets += totalPalletsForSlot;
+      });
+
+      totalContainerCount += cont.qty;
+    });
+
+    let totalGoodsEur = 0;
+    let totalBottles = 0;
+    let totalShipEur = 0;
+
+    Object.values(byProduct).forEach(p => {
+      totalGoodsEur += p.goods;
+      totalBottles += p.bottles;
+      totalShipEur += p.ship;
+    });
+
+    // Per-container fixed ILS fees (health, port, customs, kosher)
+    const feesPerContainerIls = healthIls + portIls + customsIls + kosherIls;
+    const totalFeesIls = feesPerContainerIls * totalContainerCount;
+
+    // Per-pallet ILS services (local shipping, storage, unload)
+    const localServicesIls =
+      (localPerPalletIls * localPalletsCount) +
+      (storagePerPalletIls * storagePalletsCount) +
+      (unloadPerPalletIls * unloadPalletsCount);
+
+    // Extras (mixed currency — convert each to EUR for unified totals)
+    let extrasEur = 0;
+    extras.forEach(e => {
+      const amt = e.amount || 0;
+      if (e.currency === 'EUR') extrasEur += amt;
+      else extrasEur += amt / exch;
+    });
+    const extrasIls = extrasEur * exch;
+
+    // Convert ILS-denominated costs to EUR for unified totals
+    const totalFeesEur = totalFeesIls / exch;
+    const localServicesEur = localServicesIls / exch;
+
+    // Grand totals
+    const totalEur = totalGoodsEur + totalShipEur + totalPalletFeeEur + totalFeesEur + localServicesEur + extrasEur;
+    const totalIls = totalEur * exch;
+
+    // Update summary rows
+    document.getElementById('goodsValueEur').textContent = fmtEur(totalGoodsEur);
+    document.getElementById('goodsValueIls').textContent = fmtIls(totalGoodsEur * exch);
+
+    document.getElementById('shipDisplayEur').textContent = fmtEur(totalShipEur);
+    document.getElementById('shipDisplayIls').textContent = fmtIls(totalShipEur * exch);
+
+    document.getElementById('palletFeeEur').textContent = fmtEur(totalPalletFeeEur);
+    document.getElementById('palletFeeIls').textContent = fmtIls(totalPalletFeeEur * exch);
+
+    document.getElementById('feesEur').textContent = fmtEur(totalFeesEur);
+    document.getElementById('feesIls').textContent = fmtIls(totalFeesIls);
+
+    document.getElementById('localServicesEur').textContent = fmtEur(localServicesEur);
+    document.getElementById('localServicesIls').textContent = fmtIls(localServicesIls);
+
+    document.getElementById('extrasDisplayEur').textContent = fmtEur(extrasEur);
+    document.getElementById('extrasDisplayIls').textContent = fmtIls(extrasIls);
+
+    document.getElementById('totalEur').textContent = fmtEur(totalEur);
+    document.getElementById('totalIls').textContent = fmtIls(totalIls);
+    document.getElementById('rateDisplay').textContent = exch.toFixed(2);
+
+    // Breakdown
+    const breakdown = document.getElementById('breakdownContainer');
+    if (containers.length > 0) {
+      let bdHtml = '';
+      containers.forEach(cont => {
+        cont.slots.forEach(slot => {
+          const p = productCatalog.find(pp => pp.id === slot.productId);
+          if (slot.pallets === 0) return;
+          const b = slot.pallets * p.bottlesPerPallet * cont.qty;
+          const g = b * slot.customPrice;
+          bdHtml +=
+            '<div class="scenario-breakdown-row s' + cont.size + '">' +
+              '<span class="scenario-bd-tag s' + cont.size + '">' + cont.size + '\' × ' + cont.qty + '</span>' +
+              '<div class="scenario-bd-desc"><strong>' + p.name + '</strong> · ' + slot.pallets + ' משטחים · ' + b.toLocaleString('en-US') + ' בקבוקים</div>' +
+              '<div class="scenario-bd-amount">' + fmtEur(g) + '</div>' +
+            '</div>';
+        });
+      });
+      breakdown.innerHTML = bdHtml;
+    } else {
+      breakdown.innerHTML = '';
+    }
+
+    // Per-product cost
+    const perProductGrid = document.getElementById('perProductGrid');
+    const productKeys = Object.keys(byProduct).filter(k => byProduct[k].bottles > 0);
+
+    if (productKeys.length === 0 || totalBottles === 0) {
+      perProductGrid.innerHTML =
+        '<div style="padding: 24px; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; text-align: center; color: var(--ink-muted); font-size: 14px; grid-column: 1 / -1;">' +
+          'הוסף מכולה והקצה משטחים כדי לראות פירוט עלות לפי פורמט' +
+        '</div>';
+    } else {
+      perProductGrid.innerHTML = productKeys.map(pid => {
+        const p = byProduct[pid];
+        const proportion = p.bottles / totalBottles;
+        // Direct: goods + ship (attributed per-product)
+        const directEur = p.goods + p.ship;
+        // Shared: pallet fee + fees + local services + extras allocated by bottle proportion
+        const sharedEur = (totalPalletFeeEur + totalFeesEur + localServicesEur + extrasEur) * proportion;
+        const productTotalEur = directEur + sharedEur;
+        const productTotalIls = productTotalEur * exch;
+        const costPerBottleEur = productTotalEur / p.bottles;
+        const costPerBottleIls = productTotalIls / p.bottles;
+
+        return '<div class="product-cost-card">' +
+                '<div class="product-cost-name">' + p.productName + '</div>' +
+                '<div class="product-cost-meta">' + p.bottles.toLocaleString('en-US') + ' בקבוקים · עלות סה״כ ' + fmtEurRound(productTotalEur) + '</div>' +
+                '<div class="product-cost-values">' +
+                  '<div class="product-cost-cell">' +
+                    '<div class="product-cost-cell-label">עלות לבקבוק</div>' +
+                    '<div class="product-cost-cell-value">' + costPerBottleEur.toFixed(3) + '<span class="currency">€</span></div>' +
+                  '</div>' +
+                  '<div class="product-cost-cell">' +
+                    '<div class="product-cost-cell-label">עלות לבקבוק</div>' +
+                    '<div class="product-cost-cell-value">' + costPerBottleIls.toFixed(2) + '<span class="currency">₪</span></div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+      }).join('');
+    }
+
+    // Hero metrics
+    if (totalBottles > 0) {
+      const cb_eur = totalEur / totalBottles;
+      const cb_ils = totalIls / totalBottles;
+      document.getElementById('costPerBottleEur').textContent = cb_eur.toFixed(3);
+      document.getElementById('costPerBottleIls').textContent = cb_ils.toFixed(2);
+      document.getElementById('totalBottlesDisplay').textContent =
+        totalContainerCount + ' מכולות · ' + totalAllocatedPallets + ' משטחים · ' + totalBottles.toLocaleString('en-US') + ' בקבוקים';
+    } else {
+      document.getElementById('costPerBottleEur').textContent = '—';
+      document.getElementById('costPerBottleIls').textContent = '—';
+      document.getElementById('totalBottlesDisplay').textContent = 'אין משטחים — הקצה משטחים בתוך מכולה';
+    }
+
+    // Profit & Cashflow
+    renderProfitSection(byProduct, productKeys, exch, totalGoodsEur, totalShipEur, totalPalletFeeEur, totalFeesEur, localServicesEur, extrasEur, totalBottles, totalEur);
+    renderCashflow(byProduct, productKeys, exch, totalEur, totalBottles);
+  }
+
+  // ===== PROFIT =====
+  let lastProfitStructure = '';
+
+  function renderProfitSection(byProduct, productKeys, exch, totalGoodsEur, totalShipEur, totalPalletFeeEur, totalFeesEur, localServicesEur, extrasEur, totalBottles, totalEur) {
+    const profitContainer = document.getElementById('profitContainer');
+
+    if (productKeys.length === 0 || totalBottles === 0) {
+      profitContainer.innerHTML = '<div class="profit-empty">הוסף מכולה כדי לראות חישוב רווח לפי פורמט</div>';
+      lastProfitStructure = '';
+      return;
+    }
+
+    const structureKey = productKeys.join('|');
+    if (structureKey !== lastProfitStructure) {
+      lastProfitStructure = structureKey;
+      profitContainer.innerHTML = productKeys.map(pid => {
+        return '<div class="profit-product-card" data-product-card="' + pid + '">' +
+                '<div class="profit-product-head">' +
+                  '<div>' +
+                    '<div class="profit-product-name" data-pname="' + pid + '">—</div>' +
+                    '<div class="profit-product-meta" data-pmeta="' + pid + '">—</div>' +
+                  '</div>' +
+                  '<div class="profit-product-input-wrap">' +
+                    '<label>מחיר מכירה ₪</label>' +
+                    '<input type="number" step="0.01" value="' + (sellPrices[pid] || '') + '" data-pid="' + pid + '" placeholder="0.00" />' +
+                  '</div>' +
+                '</div>' +
+                '<div class="profit-product-grid" data-pgrid="' + pid + '"></div>' +
+              '</div>';
+      }).join('');
+
+      profitContainer.querySelectorAll('input[data-pid]').forEach(inp => {
+        inp.addEventListener('input', ev => {
+          const pid = ev.target.dataset.pid;
+          const raw = ev.target.value;
+          if (raw === '' || raw === '.') sellPrices[pid] = 0;
+          else sellPrices[pid] = parseFloat(raw) || 0;
+          calc();
+        });
+      });
+    }
+
+    updateProfitNumbers(byProduct, productKeys, exch, totalPalletFeeEur, totalFeesEur, localServicesEur, extrasEur, totalBottles);
+  }
+
+  function updateProfitNumbers(byProduct, productKeys, exch, totalPalletFeeEur, totalFeesEur, localServicesEur, extrasEur, totalBottles) {
+    productKeys.forEach(pid => {
+      const p = byProduct[pid];
+      const proportion = p.bottles / totalBottles;
+      const directEur = p.goods + p.ship;
+      const sharedEur = (totalPalletFeeEur + totalFeesEur + localServicesEur + extrasEur) * proportion;
+      const productTotalEur = directEur + sharedEur;
+      const productTotalIls = productTotalEur * exch;
+      const costPerBottleEur = productTotalEur / p.bottles;
+      const costPerBottleIls = productTotalIls / p.bottles;
+
+      const nameEl = document.querySelector('[data-pname="' + pid + '"]');
+      const metaEl = document.querySelector('[data-pmeta="' + pid + '"]');
+      if (nameEl) nameEl.textContent = p.productName;
+      if (metaEl) metaEl.textContent =
+        'עלות: ' + costPerBottleIls.toFixed(2) + ' ₪ · ' + costPerBottleEur.toFixed(3) + ' € · ' + p.bottles.toLocaleString('en-US') + ' בקבוקים';
+
+      const gridEl = document.querySelector('[data-pgrid="' + pid + '"]');
+      if (!gridEl) return;
+
+      const sellPriceIls = sellPrices[pid] || 0;
+      let cellsHtml;
+      if (sellPriceIls > 0) {
+        const sellPriceEur = sellPriceIls / exch;
+        const profitPerIls = sellPriceIls - costPerBottleIls;
+        const profitPerEur = sellPriceEur - costPerBottleEur;
+        const margin = (profitPerIls / sellPriceIls) * 100;
+        const totalProfIls = profitPerIls * p.bottles;
+        const totalProfEur = profitPerEur * p.bottles;
+        const negClass = profitPerIls < 0 ? ' negative' : '';
+
+        cellsHtml =
+          '<div class="profit-cell' + negClass + '">' +
+            '<div class="profit-cell-label">רווח לבקבוק</div>' +
+            '<div class="profit-cell-value">' + profitPerIls.toFixed(2) + ' ₪</div>' +
+            '<div class="profit-cell-secondary">' + profitPerEur.toFixed(3) + ' €</div>' +
+          '</div>' +
+          '<div class="profit-cell' + negClass + '">' +
+            '<div class="profit-cell-label">אחוז רווח</div>' +
+            '<div class="profit-cell-value">' + margin.toFixed(1) + '%</div>' +
+            '<div class="profit-cell-secondary">על מחיר המכירה</div>' +
+          '</div>' +
+          '<div class="profit-cell' + negClass + '">' +
+            '<div class="profit-cell-label">סה״כ רווח לפורמט</div>' +
+            '<div class="profit-cell-value">' + fmtIlsRound(totalProfIls) + '</div>' +
+            '<div class="profit-cell-secondary">' + fmtEurRound(totalProfEur) + '</div>' +
+          '</div>';
+      } else {
+        cellsHtml =
+          '<div class="profit-cell empty" style="grid-column: 1 / -1; text-align: center; padding: 16px;">' +
+            '<div style="font-size: 13px; color: var(--ink-muted); font-weight: 500;">הזן מחיר מכירה לבקבוק כדי לראות רווח</div>' +
+          '</div>';
+      }
+      gridEl.innerHTML = cellsHtml;
+    });
+  }
+
+  // ===== CASHFLOW =====
+  function renderCashflow(byProduct, productKeys, exch, totalCostEur, totalBottles) {
+    const section = document.getElementById('cashflowSection');
+    const hasAnySellPrice = productKeys.some(pid => (sellPrices[pid] || 0) > 0);
+
+    if (productKeys.length === 0 || totalBottles === 0 || !hasAnySellPrice) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = 'block';
+
+    const corpTaxRate = parseFloat(document.getElementById('corpTaxRate').value) || 0;
+    const opexIls = parseFloat(document.getElementById('opex').value) || 0;
+    const opexEur = opexIls / exch;
+
+    // Total costs already in EUR (totalCostEur passed in)
+    const totalCostIls = totalCostEur * exch;
+
+    // Sales — sum across all products with sell prices
+    let totalSalesIls = 0;
+    let totalSoldBottles = 0;
+    const salesBreakdown = [];
+    productKeys.forEach(pid => {
+      const p = byProduct[pid];
+      const sellPriceIls = sellPrices[pid] || 0;
+      if (sellPriceIls > 0 && p.bottles > 0) {
+        const lineTotalIls = sellPriceIls * p.bottles;
+        totalSalesIls += lineTotalIls;
+        totalSoldBottles += p.bottles;
+        salesBreakdown.push({
+          label: p.productName + ' · ' + p.bottles.toLocaleString('en-US') + ' × ' + sellPriceIls.toFixed(2) + ' ₪',
+          ils: lineTotalIls,
+          eur: lineTotalIls / exch
+        });
+      }
+    });
+    const totalSalesEur = totalSalesIls / exch;
+
+    // Gross profit (before opex and tax)
+    const grossProfitIls = totalSalesIls - totalCostIls;
+    const grossProfitEur = grossProfitIls / exch;
+
+    // Taxable income (after opex)
+    const taxableIls = grossProfitIls - opexIls;
+    const taxableEur = taxableIls / exch;
+
+    // Corp tax (only on positive)
+    const corpTaxIls = taxableIls > 0 ? taxableIls * (corpTaxRate / 100) : 0;
+    const corpTaxEur = corpTaxIls / exch;
+
+    // Net profit
+    const netProfitIls = taxableIls - corpTaxIls;
+    const netProfitEur = netProfitIls / exch;
+    const isLoss = netProfitIls < 0;
+
+    // ===== Render: Cash Out =====
+    const cfOutRows = document.getElementById('cfOutRows');
+    cfOutRows.innerHTML =
+      '<div class="flow-row">' +
+        '<span class="flow-row-label">סה״כ עלות יבוא ולוגיסטיקה</span>' +
+        '<div class="flow-row-vals">' +
+          fmtIls(totalCostIls) +
+          '<span class="flow-row-secondary">' + fmtEur(totalCostEur) + '</span>' +
+        '</div>' +
+      '</div>' +
+      (opexIls > 0 ?
+        '<div class="flow-row">' +
+          '<span class="flow-row-label">הוצאות תפעול נוספות</span>' +
+          '<div class="flow-row-vals">' +
+            fmtIls(opexIls) +
+            '<span class="flow-row-secondary">' + fmtEur(opexEur) + '</span>' +
+          '</div>' +
+        '</div>'
+      : '');
+    document.getElementById('cfOutTotalIls').textContent = fmtIls(totalCostIls + opexIls);
+    document.getElementById('cfOutTotalEur').textContent = fmtEur(totalCostEur + opexEur);
+
+    // ===== Render: Cash In =====
+    const cfInRows = document.getElementById('cfInRows');
+    cfInRows.innerHTML = salesBreakdown.map(item =>
+      '<div class="flow-row">' +
+        '<span class="flow-row-label">' + item.label + '</span>' +
+        '<div class="flow-row-vals">' +
+          fmtIls(item.ils) +
+          '<span class="flow-row-secondary">' + fmtEur(item.eur) + '</span>' +
+        '</div>' +
+      '</div>'
+    ).join('');
+    document.getElementById('cfInTotalIls').textContent = fmtIls(totalSalesIls);
+    document.getElementById('cfInTotalEur').textContent = fmtEur(totalSalesEur);
+
+    // ===== Render: Tax Layer =====
+    document.getElementById('cfGrossIls').textContent = fmtIls(grossProfitIls);
+    document.getElementById('cfGrossEur').textContent = fmtEur(grossProfitEur);
+
+    const opexRow = document.getElementById('cfOpexRow');
+    if (opexIls > 0) {
+      opexRow.style.display = 'grid';
+      document.getElementById('cfOpexIls').textContent = fmtIls(opexIls);
+      document.getElementById('cfOpexEur').textContent = fmtEur(opexEur);
+    } else {
+      opexRow.style.display = 'none';
+    }
+
+    document.getElementById('cfTaxableIls').textContent = fmtIls(taxableIls);
+    document.getElementById('cfTaxableEur').textContent = fmtEur(taxableEur);
+    document.getElementById('cfTaxRateDisplay').textContent = corpTaxRate;
+    document.getElementById('cfCorpTaxIls').textContent = fmtIls(corpTaxIls);
+    document.getElementById('cfCorpTaxEur').textContent = fmtEur(corpTaxEur);
+
+    // ===== Net profit hero =====
+    const hero = document.getElementById('netProfitHero');
+    hero.classList.toggle('loss', isLoss);
+    document.getElementById('netProfitIls').textContent =
+      (isLoss ? '-' : '') + Math.abs(netProfitIls).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    document.getElementById('netProfitEur').textContent =
+      (isLoss ? '-' : '') + Math.abs(netProfitEur).toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+    const profitPerBottleIls = totalSoldBottles > 0 ? netProfitIls / totalSoldBottles : 0;
+    const marginPct = totalSalesIls > 0 ? (netProfitIls / totalSalesIls) * 100 : 0;
+    const subPrefix = isLoss ? 'הפסד' : 'רווח';
+    document.getElementById('netProfitSub').innerHTML =
+      subPrefix + ' נטו לבקבוק: <strong>' + profitPerBottleIls.toFixed(2) + ' ₪</strong> · ' +
+      'מרווח רווח נטו: <strong>' + marginPct.toFixed(1) + '%</strong> מהמכירות';
+
+    document.getElementById('cashflowLossNote').style.display = isLoss ? 'block' : 'none';
+  }
+
+  // Wire all top-level inputs
+  ['shipCost20','shipCost40','exchangeRate','palletFee','palletFeeCount',
+   'health','port','customs','kosher',
+   'local','storage','unload',
+   'localPallets','storagePallets','unloadPallets',
+   'opex','corpTaxRate']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', calc);
+    });
+
+  // Initialize with one default container
+  addContainer();
+})();
+</script>
+
+</body>
+</html>
