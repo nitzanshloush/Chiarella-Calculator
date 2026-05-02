@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chiarella Import Calculator · מחשבון יבוא</title>
+<title>Chiarella Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1133,6 +1133,7 @@
   }
   .tab-btn {
     padding: 14px 22px; font-size: 14px; font-weight: 600;
+    font-family: var(--font);
     color: var(--ink-muted); background: none; border: none;
     cursor: pointer; position: relative; top: 2px;
     border-bottom: 2px solid transparent;
@@ -1402,8 +1403,8 @@
     <div class="brand">
       <div class="brand-mark">C</div>
       <div class="brand-text">
-        <h1>CHIARELLA IMPORT CALCULATOR</h1>
-        <p>מחשבון יבוא · מותג מים</p>
+        <h1>CHIARELLA DASHBOARD</h1>
+        <p>מותג מים</p>
       </div>
     </div>
     <div class="topbar-meta">
@@ -3294,19 +3295,31 @@ function renderLog() {
     (!filterUser   || r.user_email === filterUser)
   );
   document.getElementById('logStats').textContent = rows.length + ' רשומות';
-  const fieldLabels = { status:'סטטוס', price500:'מחיר 500מל', priceGlass:'מחיר זכוכית', note:'הערות', name:'שם', cat:'קטגוריה', level:'רמה', type:'סוג', פרטים:'פרטים' };
+  const fieldLabels = { status:'סטטוס', price500:'מחיר 500מל', priceGlass:'מחיר זכוכית', note:'הערות', name:'שם', cat:'קטגוריה', level:'רמה', type:'סוג' };
+  const statusLabels = ['לא פנינו','פניה ראשונה','בתהליך','סגור','לא רלוונטי'];
+  function fmtVal(field, val) {
+    if (val === null || val === undefined || val === '') return '—';
+    if (field === 'status') return statusLabels[parseInt(val)] || val;
+    try {
+      const obj = JSON.parse(val);
+      if (typeof obj === 'object') return Object.entries(obj).map(([k,v]) => `${fieldLabels[k]||k}: ${v}`).join(' · ');
+    } catch(e) {}
+    return val;
+  }
   tbody.innerHTML = rows.map(r => {
     const dt = new Date(r.created_at);
     const dateStr = dt.toLocaleDateString('he-IL') + ' ' + dt.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit' });
     const fieldHe = fieldLabels[r.field_changed] || r.field_changed || '';
+    const oldFmt = fmtVal(r.field_changed, r.old_value);
+    const newFmt = fmtVal(r.field_changed, r.new_value);
     return `<tr>
       <td style="white-space:nowrap;color:var(--ink-muted);font-size:12px">${dateStr}</td>
       <td><span class="log-user-badge">${r.user_email}</span></td>
       <td><span class="log-action ${r.action}">${r.action}</span></td>
       <td style="font-weight:600">${r.entity_name}</td>
       <td style="color:var(--ink-muted);font-size:12px">${fieldHe}</td>
-      <td style="color:var(--ink-muted);font-size:12px">${r.old_value ?? ''}</td>
-      <td style="font-size:12px">${r.new_value ?? ''}</td>
+      <td style="color:var(--ink-muted);font-size:12px">${oldFmt}</td>
+      <td style="font-size:12px">${newFmt}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--ink-muted)">אין רשומות</td></tr>';
 }
