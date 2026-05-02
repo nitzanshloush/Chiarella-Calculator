@@ -2193,9 +2193,10 @@
     });
 
     c.querySelectorAll('select[data-cid][data-f="size"]').forEach(el => el.addEventListener('change', handleContainerChange));
-    c.querySelectorAll('input[data-cid][data-f="qty"]').forEach(el => el.addEventListener('input', handleContainerChange));
+    c.querySelectorAll('input[data-cid][data-f="qty"]').forEach(el => el.addEventListener('change', handleContainerChange));
     c.querySelectorAll('select[data-cid][data-sid]').forEach(el => el.addEventListener('change', handleSlotChange));
-    c.querySelectorAll('input[data-cid][data-sid]').forEach(el => el.addEventListener('input', handleSlotChange));
+    c.querySelectorAll('input[data-cid][data-sid][data-f="pallets"]').forEach(el => el.addEventListener('change', handleSlotChange));
+    c.querySelectorAll('input[data-cid][data-sid][data-f="price"]').forEach(el => el.addEventListener('input', handleSlotChange));
     c.querySelectorAll('button[data-del-cont]').forEach(btn => btn.addEventListener('click', ev => delContainer(parseInt(ev.currentTarget.dataset.delCont))));
     c.querySelectorAll('button[data-del-slot]').forEach(btn => btn.addEventListener('click', ev => delSlot(parseInt(ev.currentTarget.dataset.cid), parseInt(ev.currentTarget.dataset.delSlot))));
     c.querySelectorAll('button[data-add-slot]').forEach(btn => btn.addEventListener('click', ev => addSlot(parseInt(ev.currentTarget.dataset.addSlot))));
@@ -2572,6 +2573,13 @@
     }
 
     updateProfitNumbers(byProduct, productKeys, exch, totalPalletFeeEur, totalFeesEur, localServicesEur, extrasEur, totalBottles);
+
+    // Save state
+    try {
+      const inputState = {};
+      document.querySelectorAll('#tab-calc input[id], #tab-calc select[id]').forEach(el => { if(el.id) inputState[el.id] = el.value; });
+      localStorage.setItem('calcData', JSON.stringify({ containers, extras, inputs: inputState }));
+    } catch(e) {}
   }
 
   function updateProfitNumbers(byProduct, productKeys, exch, totalPalletFeeEur, totalFeesEur, localServicesEur, extrasEur, totalBottles) {
@@ -2938,8 +2946,31 @@ ${prodCards ? `<h2>פירוט לפי פורמט</h2>${prodCards}` : ''}
     URL.revokeObjectURL(url);
   };
 
-  // Initialize with one default container
-  addContainer();
+  window.recalcCalc = calc;
+
+  // Restore saved state or initialize with default
+  (function() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('calcData') || 'null');
+      if (saved && saved.containers && saved.containers.length > 0) {
+        containers = saved.containers;
+        extras = saved.extras || [];
+        // Restore simple inputs first
+        if (saved.inputs) {
+          Object.entries(saved.inputs).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+          });
+        }
+        renderContainers();
+        renderExtras();
+        autoFillPalletCounts();
+        calc();
+        return;
+      }
+    } catch(e) {}
+    addContainer();
+  })();
 })();
 
 // ===== TAB SWITCHING =====
@@ -2960,13 +2991,8 @@ function saveCalcState() {
   localStorage.setItem('calcState', JSON.stringify(state));
 }
 function restoreCalcState() {
-  try {
-    const state = JSON.parse(localStorage.getItem('calcState') || '{}');
-    Object.entries(state).forEach(([id, val]) => {
-      const el = document.getElementById(id);
-      if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }
-    });
-  } catch(e) {}
+  // State is now restored inside the calc IIFE from calcData
+  // This function is kept for compatibility but does nothing extra
 }
 document.addEventListener('DOMContentLoaded', () => {
   // Restore tab
