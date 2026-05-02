@@ -1254,6 +1254,87 @@
     color: var(--ink-soft); letter-spacing: 0.05em; text-transform: uppercase;
     border-bottom: none;
   }
+  .btn-add-lead {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none; background: var(--primary); color: white;
+    transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-add-lead:hover { background: var(--primary-deep); }
+  .btn-manage-cats {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--line); background: var(--paper);
+    color: var(--ink-soft); transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-manage-cats:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+  .btn-del-row {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-muted); font-size: 17px; line-height: 1;
+    padding: 2px 6px; border-radius: 4px; transition: color 0.1s, background 0.1s;
+  }
+  .btn-del-row:hover { color: var(--danger); background: var(--danger-bg); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,41,66,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal-box {
+    background: var(--paper); border-radius: 14px;
+    padding: 32px 36px; width: 480px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(15,41,66,0.2);
+    position: relative;
+  }
+  .modal-title { font-size: 19px; font-weight: 700; margin-bottom: 22px; color: var(--ink); }
+  .modal-field { margin-bottom: 16px; }
+  .modal-field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
+  .modal-input {
+    width: 100%; padding: 10px 13px; border: 1.5px solid var(--line);
+    border-radius: 8px; font-size: 14px; font-family: var(--font); color: var(--ink);
+    background: var(--paper); box-sizing: border-box;
+  }
+  .modal-input:focus { outline: none; border-color: var(--primary); }
+  .modal-row { display: flex; gap: 12px; }
+  .modal-row .modal-field { flex: 1; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-start; }
+  .btn-modal-ok {
+    padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 700;
+    border: none; background: var(--primary); color: white; cursor: pointer;
+  }
+  .btn-modal-ok:hover { background: var(--primary-deep); }
+  .btn-modal-cancel {
+    padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    border: 1.5px solid var(--line); background: var(--paper); color: var(--ink-soft); cursor: pointer;
+  }
+  .btn-modal-cancel:hover { border-color: var(--ink-muted); color: var(--ink); }
+  .modal-close {
+    position: absolute; top: 14px; left: 16px;
+    background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-muted);
+  }
+  .modal-close:hover { color: var(--ink); }
+  .cats-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+  .cat-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg-soft); border-radius: 8px; }
+  .cat-row-name { flex: 1; font-weight: 600; font-size: 14px; }
+  .cat-count { font-size: 12px; color: var(--ink-muted); }
+  .btn-del-cat {
+    background: none; border: none; cursor: pointer; color: var(--ink-muted);
+    font-size: 16px; padding: 2px 6px; border-radius: 4px; transition: color 0.1s, background 0.1s;
+  }
+  .btn-del-cat:hover { color: var(--danger); background: var(--danger-bg); }
+  .add-cat-row { display: flex; gap: 8px; margin-top: 12px; }
+  .add-cat-input {
+    flex: 1; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 8px;
+    font-size: 13px; font-family: var(--font); color: var(--ink); background: var(--paper);
+  }
+  .add-cat-input:focus { outline: none; border-color: var(--primary); }
+  .btn-add-cat {
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    border: none; background: var(--primary); color: white; cursor: pointer;
+  }
+  .btn-add-cat:hover { background: var(--primary-deep); }
 </style>
 </head>
 <body>
@@ -1716,11 +1797,6 @@
       <input class="leads-search" type="text" id="leadsSearch" placeholder="חיפוש לפי שם..." oninput="filterLeads()" />
       <select class="leads-filter" id="filterCat" onchange="filterLeads()">
         <option value="">כל הקטגוריות</option>
-        <option value="מלון">מלון</option>
-        <option value="מסעדה">מסעדה</option>
-        <option value="בר">בר</option>
-        <option value="קונדיטוריה">קונדיטוריה</option>
-        <option value="חוף">חוף</option>
       </select>
       <select class="leads-filter" id="filterLevel" onchange="filterLeads()">
         <option value="">כל הרמות</option>
@@ -1736,7 +1812,9 @@
         <option value="3">לקוח פעיל</option>
         <option value="4">לא רלוונטי</option>
       </select>
-      <span class="leads-stats" id="leadsStats">125 לידים</span>
+      <span class="leads-stats" id="leadsStats"></span>
+      <button class="btn-manage-cats" onclick="openCatsModal()">⚙ קטגוריות</button>
+      <button class="btn-add-lead" onclick="openAddModal()">+ הוסף ליד</button>
     </div>
 
     <div class="leads-table-wrap">
@@ -1751,6 +1829,7 @@
             <th>מחיר 500מ"ל (₪)</th>
             <th>מחיר זכוכית (₪)</th>
             <th>הערות</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="leadsTbody"></tbody>
@@ -1758,6 +1837,53 @@
     </div>
   </div>
 </div><!-- end tab-leads -->
+
+<!-- Add Lead Modal -->
+<div class="modal-overlay hidden" id="addLeadModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModals()">×</button>
+    <div class="modal-title">הוסף ליד חדש</div>
+    <div class="modal-field">
+      <label>שם המקום</label>
+      <input class="modal-input" id="ml-name" type="text" placeholder="שם המסעדה / המלון..." />
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>קטגוריה</label>
+        <select class="modal-input" id="ml-cat"></select>
+      </div>
+      <div class="modal-field">
+        <label>רמה</label>
+        <select class="modal-input" id="ml-level">
+          <option value="A">A — פרימיום</option>
+          <option value="B">B — מיתוג</option>
+          <option value="C">C — ווליום</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>סוג (אופציונלי)</label>
+      <input class="modal-input" id="ml-type" type="text" placeholder="למשל: מסעדת שף, בר קוקטיילים..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-ok" onclick="submitAddLead()">הוסף</button>
+      <button class="btn-modal-cancel" onclick="closeModals()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage Categories Modal -->
+<div class="modal-overlay hidden" id="catsModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModals()">×</button>
+    <div class="modal-title">ניהול קטגוריות</div>
+    <div class="cats-list" id="catsListEl"></div>
+    <div class="add-cat-row">
+      <input class="add-cat-input" id="newCatInput" type="text" placeholder="שם קטגוריה חדשה..." onkeydown="if(event.key==='Enter')addCategory()" />
+      <button class="btn-add-cat" onclick="addCategory()">+ הוסף</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function() {
@@ -2848,39 +2974,70 @@ const LEADS_RAW = [
 ];
 
 const STATUS_LABELS = ['לא נוצר קשר','בתהליך','דובר','לקוח פעיל','לא רלוונטי'];
-let leadsData = [];
-let sortDir = 1;
+const CAT_PALETTE = [
+  {bg:'#e2eef8',color:'#2e6b9a'},{bg:'#f5edd9',color:'#a8893f'},
+  {bg:'#e0f0f7',color:'#1a7a9a'},{bg:'#f0e8f5',color:'#7a4a9a'},
+  {bg:'#dff0e8',color:'#3a8a6a'},{bg:'#fde8e8',color:'#9a3a3a'},
+  {bg:'#e8f0de',color:'#4a7a2a'},{bg:'#f0ede0',color:'#7a6a3a'},
+];
+const DEFAULT_CATS = ['מלון','מסעדה','בר','קונדיטוריה','חוף'];
 
-function loadLeadsData() {
-  const saved = JSON.parse(localStorage.getItem('chiarella_leads') || '{}');
-  leadsData = LEADS_RAW.map((r, i) => {
-    const s = saved[i] || {};
-    return { ...r, id: i, status: s.status ?? 0, price500: s.price500 ?? '', priceGlass: s.priceGlass ?? '', note: s.note ?? '' };
-  });
+let leadsData = [];
+let categories = [];
+let sortDir = 1;
+let nextId = 0;
+
+function catStyle(catName) {
+  const idx = categories.indexOf(catName) % CAT_PALETTE.length;
+  const p = CAT_PALETTE[Math.max(0, idx)];
+  return `background:${p.bg};color:${p.color}`;
 }
 
-function saveLeadsData() {
-  const out = {};
-  leadsData.forEach(l => {
-    if (l.status || l.price500 || l.priceGlass || l.note)
-      out[l.id] = { status: l.status, price500: l.price500, priceGlass: l.priceGlass, note: l.note };
-  });
-  localStorage.setItem('chiarella_leads', JSON.stringify(out));
+function saveAll() {
+  localStorage.setItem('chiarella_leads2', JSON.stringify(leadsData));
+  localStorage.setItem('chiarella_cats', JSON.stringify(categories));
+}
+
+function loadAll() {
+  const savedCats = localStorage.getItem('chiarella_cats');
+  categories = savedCats ? JSON.parse(savedCats) : [...DEFAULT_CATS];
+
+  const savedLeads = localStorage.getItem('chiarella_leads2');
+  if (savedLeads) {
+    leadsData = JSON.parse(savedLeads);
+    nextId = leadsData.reduce((m, l) => Math.max(m, l.id), -1) + 1;
+  } else {
+    // First load: seed from LEADS_RAW + migrate old localStorage if any
+    const old = JSON.parse(localStorage.getItem('chiarella_leads') || '{}');
+    leadsData = LEADS_RAW.map((r, i) => {
+      const s = old[i] || {};
+      return { ...r, id: i, status: s.status ?? 0, price500: s.price500 ?? '', priceGlass: s.priceGlass ?? '', note: s.note ?? '' };
+    });
+    nextId = leadsData.length;
+    saveAll();
+  }
+}
+
+function rebuildCatFilter() {
+  const sel = document.getElementById('filterCat');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">כל הקטגוריות</option>' +
+    categories.map(c => `<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
 }
 
 function renderLeads() {
   const tbody = document.getElementById('leadsTbody');
   tbody.innerHTML = '';
   let lastCat = null;
-  const CAT_ORDER = ['מלון','מסעדה','בר','קונדיטוריה','חוף'];
 
   leadsData.forEach(lead => {
     if (lead.cat !== lastCat) {
       lastCat = lead.cat;
+      const count = leadsData.filter(l => l.cat === lead.cat).length;
       const sep = document.createElement('tr');
       sep.className = 'leads-section-header';
       sep.dataset.cat = lead.cat;
-      sep.innerHTML = `<td colspan="8">${lead.cat} · ${leadsData.filter(l=>l.cat===lead.cat).length} מקומות</td>`;
+      sep.innerHTML = `<td colspan="9">${lead.cat} · ${count} מקומות</td>`;
       tbody.appendChild(sep);
     }
     const tr = document.createElement('tr');
@@ -2889,11 +3046,10 @@ function renderLeads() {
     tr.dataset.level = lead.level;
     tr.dataset.status = lead.status;
     tr.dataset.name = lead.name.toLowerCase();
-
     tr.innerHTML = `
-      <td><span class="cat-badge cat-${lead.cat}">${lead.cat}</span></td>
+      <td><span class="cat-badge" style="${catStyle(lead.cat)}">${lead.cat}</span></td>
       <td style="font-weight:600">${lead.name}</td>
-      <td style="color:var(--ink-muted);font-size:12px">${lead.type}</td>
+      <td style="color:var(--ink-muted);font-size:12px">${lead.type||''}</td>
       <td><span class="level-badge level-${lead.level}">${lead.level}</span></td>
       <td>
         <select class="status-sel s${lead.status}" onchange="updateLead(${lead.id},'status',this.value,this)">
@@ -2903,19 +3059,30 @@ function renderLeads() {
       <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.price500}" oninput="updateLead(${lead.id},'price500',this.value)" /></td>
       <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.priceGlass}" oninput="updateLead(${lead.id},'priceGlass',this.value)" /></td>
       <td><textarea class="note-input" placeholder="הערה..." oninput="updateLead(${lead.id},'note',this.value)">${lead.note}</textarea></td>
+      <td><button class="btn-del-row" title="מחק ליד" onclick="deleteLead(${lead.id})">×</button></td>
     `;
     tbody.appendChild(tr);
   });
+  rebuildCatFilter();
   filterLeads();
 }
 
 function updateLead(id, field, val, el) {
-  leadsData[id][field] = field === 'status' ? parseInt(val) : val;
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  lead[field] = field === 'status' ? parseInt(val) : val;
   if (field === 'status' && el) {
     el.className = 'status-sel s' + val;
     el.closest('tr').dataset.status = val;
   }
-  saveLeadsData();
+  saveAll();
+}
+
+function deleteLead(id) {
+  if (!confirm('למחוק ליד זה?')) return;
+  leadsData = leadsData.filter(l => l.id !== id);
+  saveAll();
+  renderLeads();
 }
 
 function filterLeads() {
@@ -2923,36 +3090,98 @@ function filterLeads() {
   const cat    = document.getElementById('filterCat').value;
   const level  = document.getElementById('filterLevel').value;
   const status = document.getElementById('filterStatus').value;
-
   let visible = 0;
-  document.querySelectorAll('#leadsTbody tr').forEach(tr => {
-    if (tr.classList.contains('leads-section-header')) return;
-    const matchSearch = !search || tr.dataset.name.includes(search);
-    const matchCat    = !cat    || tr.dataset.cat === cat;
-    const matchLevel  = !level  || tr.dataset.level === level;
-    const matchStatus = status === '' || tr.dataset.status === status;
-    const show = matchSearch && matchCat && matchLevel && matchStatus;
+
+  document.querySelectorAll('#leadsTbody tr:not(.leads-section-header)').forEach(tr => {
+    const show = (!search || tr.dataset.name.includes(search))
+              && (!cat    || tr.dataset.cat === cat)
+              && (!level  || tr.dataset.level === level)
+              && (status === '' || tr.dataset.status === status);
     tr.classList.toggle('hidden', !show);
     if (show) visible++;
   });
-
-  // Hide section headers if all rows in that section are hidden
   document.querySelectorAll('#leadsTbody .leads-section-header').forEach(sep => {
-    const catName = sep.dataset.cat;
-    const hasVisible = [...document.querySelectorAll(`#leadsTbody tr[data-cat="${catName}"]`)].some(r => !r.classList.contains('hidden'));
+    const hasVisible = [...document.querySelectorAll(`#leadsTbody tr[data-cat="${sep.dataset.cat}"]`)].some(r => !r.classList.contains('hidden'));
     sep.classList.toggle('hidden', !hasVisible);
   });
-
-  document.getElementById('leadsStats').textContent = visible + ' לידים מוצגים';
+  document.getElementById('leadsStats').textContent = visible + ' / ' + leadsData.length + ' לידים';
+  document.querySelector('.tab-btn:nth-child(2) .tab-count').textContent = leadsData.length;
 }
 
 function sortLeads(field) {
   sortDir *= -1;
-  leadsData.sort((a, b) => a[field].localeCompare(b[field]) * sortDir);
+  leadsData.sort((a, b) => (a[field]||'').localeCompare(b[field]||'') * sortDir);
   renderLeads();
 }
 
-loadLeadsData();
+// ---- Add Lead Modal ----
+function openAddModal() {
+  const sel = document.getElementById('ml-cat');
+  sel.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('ml-name').value = '';
+  document.getElementById('ml-type').value = '';
+  document.getElementById('addLeadModal').classList.remove('hidden');
+  document.getElementById('ml-name').focus();
+}
+
+function submitAddLead() {
+  const name = document.getElementById('ml-name').value.trim();
+  if (!name) { document.getElementById('ml-name').focus(); return; }
+  const cat   = document.getElementById('ml-cat').value;
+  const level = document.getElementById('ml-level').value;
+  const type  = document.getElementById('ml-type').value.trim();
+  leadsData.push({ id: nextId++, cat, name, type, level, status: 0, price500: '', priceGlass: '', note: '' });
+  saveAll();
+  closeModals();
+  renderLeads();
+}
+
+// ---- Category Modal ----
+function openCatsModal() {
+  renderCatsList();
+  document.getElementById('catsModal').classList.remove('hidden');
+}
+
+function renderCatsList() {
+  const el = document.getElementById('catsListEl');
+  el.innerHTML = categories.map(c => {
+    const count = leadsData.filter(l => l.cat === c).length;
+    return `<div class="cat-row">
+      <span class="cat-badge" style="${catStyle(c)}">${c}</span>
+      <span class="cat-row-name">${c}</span>
+      <span class="cat-count">${count} לידים</span>
+      <button class="btn-del-cat" title="מחק קטגוריה" onclick="deleteCategory('${c}')">×</button>
+    </div>`;
+  }).join('');
+  document.getElementById('newCatInput').value = '';
+}
+
+function addCategory() {
+  const name = document.getElementById('newCatInput').value.trim();
+  if (!name || categories.includes(name)) return;
+  categories.push(name);
+  saveAll();
+  renderCatsList();
+  rebuildCatFilter();
+}
+
+function deleteCategory(name) {
+  const count = leadsData.filter(l => l.cat === name).length;
+  if (count > 0 && !confirm(`הקטגוריה "${name}" מכילה ${count} לידים. למחוק אותה ואת כל הלידים שלה?`)) return;
+  leadsData = leadsData.filter(l => l.cat !== name);
+  categories = categories.filter(c => c !== name);
+  saveAll();
+  renderCatsList();
+  rebuildCatFilter();
+  renderLeads();
+}
+
+function closeModals() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
+
+loadAll();
 renderLeads();
 </script>
 
