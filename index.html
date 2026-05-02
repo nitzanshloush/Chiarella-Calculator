@@ -3128,25 +3128,33 @@ async function signOut() {
   await sb.auth.signOut();
 }
 
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (session) {
-    // Whitelist check
-    const { data } = await sb.from('allowed_emails').select('email').eq('email', session.user.email).single();
-    if (!data) {
-      await sb.auth.signOut();
-      const msg = document.getElementById('loginMsg');
-      msg.className = 'login-msg err';
-      msg.textContent = 'המייל הזה אינו מורשה לגשת למערכת.';
-      return;
-    }
-    currentUserEmail = session.user.email;
-    const lbl = document.getElementById('userLabel');
-    if (lbl) lbl.textContent = currentUserEmail;
-    document.getElementById('loginOverlay').classList.add('hidden');
-    await initData();
-  } else {
-    document.getElementById('loginOverlay').classList.remove('hidden');
+let _appReady = false;
+
+async function handleSession(session) {
+  if (!session) { document.getElementById('loginOverlay').classList.remove('hidden'); return; }
+  // Whitelist check
+  const { data } = await sb.from('allowed_emails').select('email').eq('email', session.user.email).single();
+  if (!data) {
+    await sb.auth.signOut();
+    const msg = document.getElementById('loginMsg');
+    msg.className = 'login-msg err';
+    msg.textContent = 'המייל הזה אינו מורשה לגשת למערכת.';
+    return;
   }
+  currentUserEmail = session.user.email;
+  const lbl = document.getElementById('userLabel');
+  if (lbl) lbl.textContent = currentUserEmail;
+  document.getElementById('loginOverlay').classList.add('hidden');
+  if (!_appReady) { _appReady = true; await initData(); }
+}
+
+// On page load — restore existing session silently
+sb.auth.getSession().then(({ data: { session } }) => handleSession(session));
+
+// On sign-in / sign-out events only
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN')  handleSession(session);
+  if (event === 'SIGNED_OUT') { _appReady = false; document.getElementById('loginOverlay').classList.remove('hidden'); }
 });
 
 // ===== DATA INIT =====
