@@ -3622,8 +3622,8 @@ async function submitAddLead() {
   const cat        = document.getElementById('ml-cat').value;
   const level      = document.getElementById('ml-level').value;
   const type       = document.getElementById('ml-type').value.trim();
-  const price500   = parseFloat(document.getElementById('ml-price500').value) || null;
-  const priceGlass = parseFloat(document.getElementById('ml-priceGlass').value) || null;
+  const price500   = null;
+  const priceGlass = null;
 
   if (editingLeadId !== null) {
     const lead = leadsData.find(l => l.id === editingLeadId);
@@ -3706,8 +3706,6 @@ function openAddModal() {
   document.getElementById('ml-name').value = '';
   document.getElementById('ml-type').value = '';
   document.getElementById('ml-level').value = 'A';
-  document.getElementById('ml-price500').value = '';
-  document.getElementById('ml-priceGlass').value = '';
   document.getElementById('addLeadModal').classList.remove('hidden');
   document.getElementById('ml-name').focus();
 }
@@ -3722,8 +3720,6 @@ function openEditModal(id) {
   document.getElementById('ml-name').value      = lead.name;
   document.getElementById('ml-type').value      = lead.type || '';
   document.getElementById('ml-level').value     = lead.level;
-  document.getElementById('ml-price500').value  = lead.price500 || '';
-  document.getElementById('ml-priceGlass').value = lead.priceGlass || '';
   document.getElementById('addLeadModal').classList.remove('hidden');
   document.getElementById('ml-name').focus();
 }
