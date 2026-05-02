@@ -1422,9 +1422,10 @@
   <div class="login-card">
     <div class="login-logo">C</div>
     <div class="login-title">Chiarella</div>
-    <div class="login-sub">הזן את כתובת המייל שלך לקבלת קישור כניסה</div>
-    <input class="login-input" id="loginEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendMagicLink()" />
-    <button class="login-btn" id="loginBtn" onclick="sendMagicLink()">שלח קישור כניסה</button>
+    <div class="login-sub">הזן מייל וסיסמה לכניסה</div>
+    <input class="login-input" id="loginEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()" />
+    <input class="login-input" id="loginPass" type="password" placeholder="סיסמה" style="margin-top:10px" onkeydown="if(event.key==='Enter')signIn()" />
+    <button class="login-btn" id="loginBtn" onclick="signIn()">כניסה</button>
     <div class="login-msg" id="loginMsg"></div>
   </div>
 </div>
@@ -1433,6 +1434,9 @@
   <button class="tab-btn active" onclick="switchTab('calc',this)">מחשבון</button>
   <button class="tab-btn" onclick="switchTab('leads',this)">לידים <span class="tab-count">125</span></button>
   <button class="tab-btn" onclick="switchTab('log',this)">יומן שינויים</button>
+  <span style="flex:1"></span>
+  <span id="userLabel" style="font-size:13px;color:var(--muted);align-self:center;padding-left:8px"></span>
+  <button class="tab-btn" style="color:var(--muted);font-size:13px" onclick="signOut()">יציאה</button>
 </div>
 
 <div id="tab-calc" class="tab-panel active">
@@ -3101,25 +3105,27 @@ let sortDir = 1;
 let editingLeadId = null;
 
 // ===== AUTH =====
-async function sendMagicLink() {
+async function signIn() {
   const email = document.getElementById('loginEmail').value.trim();
-  if (!email) return;
+  const password = document.getElementById('loginPass').value;
+  if (!email || !password) return;
   const btn = document.getElementById('loginBtn');
   const msg = document.getElementById('loginMsg');
   btn.disabled = true;
-  btn.textContent = 'שולח...';
+  btn.textContent = 'מתחבר...';
   msg.className = 'login-msg';
   msg.textContent = '';
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href } });
+  const { error } = await sb.auth.signInWithPassword({ email, password });
   btn.disabled = false;
-  btn.textContent = 'שלח קישור כניסה';
+  btn.textContent = 'כניסה';
   if (error) {
     msg.className = 'login-msg err';
     msg.textContent = 'שגיאה: ' + error.message;
-  } else {
-    msg.className = 'login-msg ok';
-    msg.textContent = '✓ קישור נשלח! בדוק את תיבת הדואר שלך.';
   }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
 }
 
 sb.auth.onAuthStateChange(async (event, session) => {
@@ -3134,6 +3140,8 @@ sb.auth.onAuthStateChange(async (event, session) => {
       return;
     }
     currentUserEmail = session.user.email;
+    const lbl = document.getElementById('userLabel');
+    if (lbl) lbl.textContent = currentUserEmail;
     document.getElementById('loginOverlay').classList.add('hidden');
     await initData();
   } else {
