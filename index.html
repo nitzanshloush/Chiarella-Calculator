@@ -1121,6 +1121,139 @@
     .summary-card { box-shadow: none; border: none; padding: 0; margin: 0; }
     .summary-card::before { display: none; }
   }
+
+  /* ===== TABS ===== */
+  .tabs-nav {
+    max-width: 1280px; margin: 0 auto;
+    padding: 0 32px;
+    display: flex; gap: 4px;
+    border-bottom: 2px solid var(--line);
+    background: var(--bg);
+  }
+  .tab-btn {
+    padding: 14px 22px; font-size: 14px; font-weight: 600;
+    color: var(--ink-muted); background: none; border: none;
+    cursor: pointer; position: relative; top: 2px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-btn .tab-count {
+    display: inline-block; margin-right: 6px;
+    background: var(--primary-bg); color: var(--primary);
+    font-size: 11px; font-weight: 700; padding: 1px 7px;
+    border-radius: 100px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ===== LEADS TABLE ===== */
+  .leads-page { max-width: 1280px; margin: 0 auto; padding: 28px 32px; }
+  .leads-toolbar {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 18px;
+  }
+  .leads-search {
+    flex: 1; min-width: 200px; padding: 9px 14px;
+    border: 1.5px solid var(--line); border-radius: 8px;
+    font-family: var(--font); font-size: 14px; color: var(--ink);
+    background: var(--paper);
+  }
+  .leads-search:focus { outline: none; border-color: var(--primary); }
+  .leads-filter {
+    padding: 9px 14px; border: 1.5px solid var(--line); border-radius: 8px;
+    font-family: var(--font); font-size: 13px; color: var(--ink);
+    background: var(--paper); cursor: pointer;
+  }
+  .leads-filter:focus { outline: none; border-color: var(--primary); }
+  .leads-stats {
+    font-size: 12.5px; color: var(--ink-muted); font-weight: 500;
+    margin-right: auto;
+  }
+  .leads-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--paper);
+    box-shadow: var(--shadow-card);
+  }
+  .leads-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .leads-table th {
+    padding: 11px 14px; text-align: right;
+    background: var(--bg-soft); color: var(--ink-soft);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em;
+    border-bottom: 1.5px solid var(--line);
+    white-space: nowrap; position: sticky; top: 0; z-index: 2;
+  }
+  .leads-table th.sortable { cursor: pointer; user-select: none; }
+  .leads-table th.sortable:hover { color: var(--primary); }
+  .leads-table td {
+    padding: 10px 14px; border-bottom: 1px solid var(--line-soft);
+    vertical-align: middle;
+  }
+  .leads-table tr:last-child td { border-bottom: none; }
+  .leads-table tr:hover td { background: var(--bg-soft); }
+  .leads-table tr.hidden { display: none; }
+
+  .cat-badge {
+    display: inline-block; padding: 2px 9px; border-radius: 100px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+  }
+  .cat-מלון   { background: #e2eef8; color: #2e6b9a; }
+  .cat-מסעדה  { background: #f5edd9; color: #a8893f; }
+  .cat-בר     { background: #e0f0f7; color: #1a7a9a; }
+  .cat-קונדיטוריה { background: #f0e8f5; color: #7a4a9a; }
+  .cat-חוף    { background: #dff0e8; color: #3a8a6a; }
+
+  .level-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    font-size: 11px; font-weight: 800;
+  }
+  .level-A { background: var(--primary); color: white; }
+  .level-B { background: var(--gold); color: white; }
+  .level-C { background: var(--ink-muted); color: white; }
+
+  .status-sel {
+    border: 1.5px solid var(--line); border-radius: 6px;
+    padding: 4px 8px; font-size: 12px; font-family: var(--font);
+    background: var(--paper); color: var(--ink); cursor: pointer;
+    min-width: 130px;
+  }
+  .status-sel:focus { outline: none; border-color: var(--primary); }
+  .status-sel.s0 { background: #f4f8fc; color: var(--ink-muted); }
+  .status-sel.s1 { background: #fff8e0; color: #a8893f; border-color: #c9a961; }
+  .status-sel.s2 { background: #e2eef8; color: #2e6b9a; border-color: #4a90c2; }
+  .status-sel.s3 { background: #dff0e8; color: #3a7a5a; border-color: #4a9d7e; }
+  .status-sel.s4 { background: #f5dada; color: #a04040; border-color: #c25555; }
+
+  .price-input {
+    width: 80px; padding: 5px 8px;
+    border: 1.5px solid var(--line); border-radius: 6px;
+    font-size: 13px; font-family: var(--font); color: var(--ink);
+    background: var(--paper); text-align: left;
+  }
+  .price-input:focus { outline: none; border-color: var(--primary); }
+
+  .note-input {
+    width: 200px; padding: 5px 8px;
+    border: 1.5px solid var(--line); border-radius: 6px;
+    font-size: 12.5px; font-family: var(--font); color: var(--ink);
+    background: var(--paper);
+    resize: none; height: 34px;
+  }
+  .note-input:focus { outline: none; border-color: var(--primary); height: 60px; }
+
+  .leads-section-header {
+    background: var(--bg-soft); border-bottom: 1.5px solid var(--line);
+  }
+  .leads-section-header td {
+    padding: 7px 14px; font-size: 11.5px; font-weight: 700;
+    color: var(--ink-soft); letter-spacing: 0.05em; text-transform: uppercase;
+    border-bottom: none;
+  }
 </style>
 </head>
 <body>
@@ -1145,6 +1278,12 @@
   </div>
 </header>
 
+<div class="tabs-nav">
+  <button class="tab-btn active" onclick="switchTab('calc',this)">מחשבון</button>
+  <button class="tab-btn" onclick="switchTab('leads',this)">לידים <span class="tab-count">125</span></button>
+</div>
+
+<div id="tab-calc" class="tab-panel active">
 <main class="container">
 
   <section class="hero">
@@ -1569,6 +1708,56 @@
   </footer>
 
 </main>
+</div><!-- end tab-calc -->
+
+<div id="tab-leads" class="tab-panel">
+  <div class="leads-page">
+    <div class="leads-toolbar">
+      <input class="leads-search" type="text" id="leadsSearch" placeholder="חיפוש לפי שם..." oninput="filterLeads()" />
+      <select class="leads-filter" id="filterCat" onchange="filterLeads()">
+        <option value="">כל הקטגוריות</option>
+        <option value="מלון">מלון</option>
+        <option value="מסעדה">מסעדה</option>
+        <option value="בר">בר</option>
+        <option value="קונדיטוריה">קונדיטוריה</option>
+        <option value="חוף">חוף</option>
+      </select>
+      <select class="leads-filter" id="filterLevel" onchange="filterLeads()">
+        <option value="">כל הרמות</option>
+        <option value="A">רמה A</option>
+        <option value="B">רמה B</option>
+        <option value="C">רמה C</option>
+      </select>
+      <select class="leads-filter" id="filterStatus" onchange="filterLeads()">
+        <option value="">כל הסטטוסים</option>
+        <option value="0">לא נוצר קשר</option>
+        <option value="1">בתהליך</option>
+        <option value="2">דובר</option>
+        <option value="3">לקוח פעיל</option>
+        <option value="4">לא רלוונטי</option>
+      </select>
+      <span class="leads-stats" id="leadsStats">125 לידים</span>
+    </div>
+
+    <div class="leads-table-wrap">
+      <table class="leads-table" id="leadsTable">
+        <thead>
+          <tr>
+            <th>קטגוריה</th>
+            <th class="sortable" onclick="sortLeads('name')">שם המקום ↕</th>
+            <th>סוג</th>
+            <th>רמה</th>
+            <th>סטטוס</th>
+            <th>מחיר 500מ"ל (₪)</th>
+            <th>מחיר זכוכית (₪)</th>
+            <th>הערות</th>
+          </tr>
+        </thead>
+        <tbody id="leadsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- end tab-leads -->
 
 <script>
 (function() {
@@ -2516,6 +2705,255 @@ ${prodCards ? `<h2>פירוט לפי פורמט</h2>${prodCards}` : ''}
   // Initialize with one default container
   addContainer();
 })();
+
+// ===== TAB SWITCHING =====
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== LEADS =====
+const LEADS_RAW = [
+  // מלונות
+  {cat:'מלון',name:'The Norman Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'The Jaffa Hotel',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Hilton Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Carlton Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Royal Beach Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Dan Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'David Kempinski Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'The Setai Tel Aviv',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'The Ritz-Carlton Herzliya',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Herods Herzliya',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Daniel Herzliya',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'King David Jerusalem',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Waldorf Astoria Jerusalem',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Mamilla Hotel',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Orient Jerusalem',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'The American Colony Hotel',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Bereshit Hotel',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Six Senses Shaharut',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Isrotel Dead Sea',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Herods Dead Sea',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Dan Caesarea',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Elma Hotel Zichron',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Bayit Bagalil',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Mizpe Hayamim',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'The Efendi Hotel',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Casa Nova Hotel',type:'מלון יוקרה',level:'A'},
+  {cat:'מלון',name:'Scots Hotel Tiberias',type:'מלון יוקרה',level:'A'},
+  // מסעדות
+  {cat:'מסעדה',name:'OCD Restaurant',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Taizu',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Mashya',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Claro',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Popina',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Herbert Samuel',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Dinings TLV',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'George & John',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Hatraklin',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Animar',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Milgo & Milbar',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Shila',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'M25',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'North Abraxas',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Cafe Noir',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Pastel',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Blue Sky',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Lumina',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Kitchen Market',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Yaffo Tel Aviv',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Toto',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Rustico',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Meat Bar',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Benedict',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Darya',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'River',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Moon',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Japanika Premium',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Goocha',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Goshen',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Hudson',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Brasserie M&R',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Dalida',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Dok',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'HaBasta',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Onza',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Greco',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Turkiz',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Manta Ray',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Claro Bakery Kitchen',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Cafe Europe',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Port Said',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Romano',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Abie',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Minna Tomei',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Segev Express',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Nini Hachi',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Bindella',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Villa Mare',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Mul Yam',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Catit',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Herzog',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Orca',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Messa',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Social Club',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Topolopompo',type:'מסעדת שף / פרימיום',level:'A'},
+  {cat:'מסעדה',name:'Yoezer Wine Bar',type:'מסעדת שף / פרימיום',level:'A'},
+  // ברים
+  {cat:'בר',name:'Bellboy',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Imperial Craft Cocktail Bar',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Bar 51',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'The Prince',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'223 Bar',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Radio EPGB',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Sputnik',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Suramare Rooftop',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Speakeasy',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Imperial Rooftop',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Kuli Alma VIP',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Drama Bar',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Backstage',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Jasper',type:'בר קוקטיילים',level:'B'},
+  {cat:'בר',name:'Imperial Red',type:'בר קוקטיילים',level:'B'},
+  // קונדיטוריה
+  {cat:'קונדיטוריה',name:'Dallal Bakery',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Boutique Central',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Roladin',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Lehamim',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Bread & Co',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Piece of Cake',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Delicatessen',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Arcaffe',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Landwer Premium',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Cafe Xoho',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:"Baker's",type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Showroom Bakery',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'La Repubblica',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'Cafelix',type:'קפה/מאפייה פרימיום',level:'B'},
+  {cat:'קונדיטוריה',name:'WayCup Coffee',type:'קפה/מאפייה פרימיום',level:'B'},
+  // חופים
+  {cat:'חוף',name:'Hilton Beach',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Gordon Beach',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Frishman Beach',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Herzliya Marina',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Banana Beach Club',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Metzitzim Beach',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Alma Beach',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Beit Yanai Beach Club',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Gaash Beach Club',type:'חוף/מועדון',level:'C'},
+  {cat:'חוף',name:'Tel Baruch Beach',type:'חוף/מועדון',level:'C'},
+];
+
+const STATUS_LABELS = ['לא נוצר קשר','בתהליך','דובר','לקוח פעיל','לא רלוונטי'];
+let leadsData = [];
+let sortDir = 1;
+
+function loadLeadsData() {
+  const saved = JSON.parse(localStorage.getItem('chiarella_leads') || '{}');
+  leadsData = LEADS_RAW.map((r, i) => {
+    const s = saved[i] || {};
+    return { ...r, id: i, status: s.status ?? 0, price500: s.price500 ?? '', priceGlass: s.priceGlass ?? '', note: s.note ?? '' };
+  });
+}
+
+function saveLeadsData() {
+  const out = {};
+  leadsData.forEach(l => {
+    if (l.status || l.price500 || l.priceGlass || l.note)
+      out[l.id] = { status: l.status, price500: l.price500, priceGlass: l.priceGlass, note: l.note };
+  });
+  localStorage.setItem('chiarella_leads', JSON.stringify(out));
+}
+
+function renderLeads() {
+  const tbody = document.getElementById('leadsTbody');
+  tbody.innerHTML = '';
+  let lastCat = null;
+  const CAT_ORDER = ['מלון','מסעדה','בר','קונדיטוריה','חוף'];
+
+  leadsData.forEach(lead => {
+    if (lead.cat !== lastCat) {
+      lastCat = lead.cat;
+      const sep = document.createElement('tr');
+      sep.className = 'leads-section-header';
+      sep.dataset.cat = lead.cat;
+      sep.innerHTML = `<td colspan="8">${lead.cat} · ${leadsData.filter(l=>l.cat===lead.cat).length} מקומות</td>`;
+      tbody.appendChild(sep);
+    }
+    const tr = document.createElement('tr');
+    tr.dataset.id = lead.id;
+    tr.dataset.cat = lead.cat;
+    tr.dataset.level = lead.level;
+    tr.dataset.status = lead.status;
+    tr.dataset.name = lead.name.toLowerCase();
+
+    tr.innerHTML = `
+      <td><span class="cat-badge cat-${lead.cat}">${lead.cat}</span></td>
+      <td style="font-weight:600">${lead.name}</td>
+      <td style="color:var(--ink-muted);font-size:12px">${lead.type}</td>
+      <td><span class="level-badge level-${lead.level}">${lead.level}</span></td>
+      <td>
+        <select class="status-sel s${lead.status}" onchange="updateLead(${lead.id},'status',this.value,this)">
+          ${STATUS_LABELS.map((l,i)=>`<option value="${i}"${i===lead.status?' selected':''}>${l}</option>`).join('')}
+        </select>
+      </td>
+      <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.price500}" oninput="updateLead(${lead.id},'price500',this.value)" /></td>
+      <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.priceGlass}" oninput="updateLead(${lead.id},'priceGlass',this.value)" /></td>
+      <td><textarea class="note-input" placeholder="הערה..." oninput="updateLead(${lead.id},'note',this.value)">${lead.note}</textarea></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  filterLeads();
+}
+
+function updateLead(id, field, val, el) {
+  leadsData[id][field] = field === 'status' ? parseInt(val) : val;
+  if (field === 'status' && el) {
+    el.className = 'status-sel s' + val;
+    el.closest('tr').dataset.status = val;
+  }
+  saveLeadsData();
+}
+
+function filterLeads() {
+  const search = document.getElementById('leadsSearch').value.toLowerCase();
+  const cat    = document.getElementById('filterCat').value;
+  const level  = document.getElementById('filterLevel').value;
+  const status = document.getElementById('filterStatus').value;
+
+  let visible = 0;
+  document.querySelectorAll('#leadsTbody tr').forEach(tr => {
+    if (tr.classList.contains('leads-section-header')) return;
+    const matchSearch = !search || tr.dataset.name.includes(search);
+    const matchCat    = !cat    || tr.dataset.cat === cat;
+    const matchLevel  = !level  || tr.dataset.level === level;
+    const matchStatus = status === '' || tr.dataset.status === status;
+    const show = matchSearch && matchCat && matchLevel && matchStatus;
+    tr.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  // Hide section headers if all rows in that section are hidden
+  document.querySelectorAll('#leadsTbody .leads-section-header').forEach(sep => {
+    const catName = sep.dataset.cat;
+    const hasVisible = [...document.querySelectorAll(`#leadsTbody tr[data-cat="${catName}"]`)].some(r => !r.classList.contains('hidden'));
+    sep.classList.toggle('hidden', !hasVisible);
+  });
+
+  document.getElementById('leadsStats').textContent = visible + ' לידים מוצגים';
+}
+
+function sortLeads(field) {
+  sortDir *= -1;
+  leadsData.sort((a, b) => a[field].localeCompare(b[field]) * sortDir);
+  renderLeads();
+}
+
+loadLeadsData();
+renderLeads();
 </script>
 
 </body>
