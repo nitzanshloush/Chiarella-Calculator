@@ -3039,28 +3039,37 @@ ${prodCards ? `<h2>פירוט לפי פורמט</h2>${prodCards}` : ''}
 
 // ===== EXCHANGE RATE AUTO-FETCH =====
 async function fetchExchangeRate() {
-  const btn = document.getElementById('rateRefreshBtn');
   const status = document.getElementById('rateStatus');
-  if (btn) { btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
   if (status) status.textContent = 'טוען...';
+  let rate = null;
+
+  // Source 1: open.er-api.com (free, no key)
   try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=ILS');
+    const res = await fetch('https://open.er-api.com/v6/latest/EUR', { cache: 'no-store' });
     const data = await res.json();
-    const rate = data.rates && data.rates.ILS;
-    if (!rate) throw new Error('no rate');
+    if (data.rates && data.rates.ILS) rate = data.rates.ILS;
+  } catch(e) {}
+
+  // Source 2: jsdelivr CDN currency API (fallback)
+  if (!rate) {
+    try {
+      const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json', { cache: 'no-store' });
+      const data = await res.json();
+      if (data.eur && data.eur.ils) rate = data.eur.ils;
+    } catch(e) {}
+  }
+
+  if (rate) {
     const el = document.getElementById('exchangeRate');
     if (el) {
       el.value = rate.toFixed(2);
       el.dispatchEvent(new Event('input', { bubbles: true }));
-      el.dispatchEvent(new Event('change', { bubbles: true }));
     }
     const now = new Date();
     const timeStr = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
     if (status) status.textContent = '· עודכן ' + timeStr;
-  } catch(e) {
-    if (status) status.textContent = '⚠ לא ניתן לטעון';
-  } finally {
-    if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+  } else {
+    if (status) { status.style.color = 'var(--danger)'; status.textContent = '⚠ לא ניתן לטעון'; }
   }
 }
 fetchExchangeRate();
