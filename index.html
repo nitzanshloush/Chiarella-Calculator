@@ -1519,16 +1519,13 @@
       </div>
 
       <div class="field">
-        <label>
-          שער ₪/€
-          <span id="rateStatus" style="font-size: 11px; font-weight: 500; color: var(--ink-muted); margin-right: 8px;"></span>
-        </label>
+        <label>שער ₪/€ <span id="rateStatus" style="font-size: 11px; font-weight: 500; color: var(--ink-muted); margin-right: 6px;"></span></label>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="field-input-wrap">
-            <input type="number" id="exchangeRate" value="3.47" step="0.01" />
+          <div class="field-input-wrap" style="background: var(--bg-soft); cursor: default;">
+            <input type="number" id="exchangeRate" value="3.47" step="0.01" readonly style="cursor: default; color: var(--ink-soft); pointer-events: none;" />
             <span class="unit-symbol">₪/€</span>
           </div>
-          <button id="rateRefreshBtn" onclick="fetchExchangeRate()" title="רענן שער" style="background: none; border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 9px; cursor: pointer; font-size: 14px; color: var(--ink-muted); line-height: 1; transition: all 0.2s;">🔄</button>
+          <button onclick="fetchExchangeRate()" title="רענן שער" style="background: none; border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 9px; cursor: pointer; font-size: 13px; color: var(--ink-muted); line-height: 1; transition: all 0.2s; font-family: var(--font);">🔄</button>
         </div>
       </div>
 
@@ -2643,7 +2640,7 @@
     // Save state
     try {
       const inputState = {};
-      document.querySelectorAll('#tab-calc input[id], #tab-calc select[id]').forEach(el => { if(el.id) inputState[el.id] = el.value; });
+      document.querySelectorAll('#tab-calc input[id], #tab-calc select[id]').forEach(el => { if(el.id && el.id !== 'exchangeRate') inputState[el.id] = el.value; });
       localStorage.setItem('calcData', JSON.stringify({ containers, extras, inputs: inputState }));
     } catch(e) {}
   }
@@ -3024,6 +3021,7 @@ ${prodCards ? `<h2>פירוט לפי פורמט</h2>${prodCards}` : ''}
         // Restore simple inputs first
         if (saved.inputs) {
           Object.entries(saved.inputs).forEach(([id, val]) => {
+            if (id === 'exchangeRate') return;
             const el = document.getElementById(id);
             if (el) el.value = val;
           });
@@ -3051,10 +3049,14 @@ async function fetchExchangeRate() {
     const rate = data.rates && data.rates.ILS;
     if (!rate) throw new Error('no rate');
     const el = document.getElementById('exchangeRate');
-    if (el) { el.value = rate.toFixed(2); el.dispatchEvent(new Event('input')); }
+    if (el) {
+      el.value = rate.toFixed(2);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     const now = new Date();
     const timeStr = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-    if (status) status.textContent = '✓ עודכן ' + timeStr;
+    if (status) status.textContent = '· עודכן ' + timeStr;
   } catch(e) {
     if (status) status.textContent = '⚠ לא ניתן לטעון';
   } finally {
