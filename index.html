@@ -3309,9 +3309,19 @@ function renderLog() {
   tbody.innerHTML = rows.map(r => {
     const dt = new Date(r.created_at);
     const dateStr = dt.toLocaleDateString('he-IL') + ' ' + dt.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit' });
-    const fieldHe = fieldLabels[r.field_changed] || r.field_changed || '';
-    const oldFmt = fmtVal(r.field_changed, r.old_value);
-    const newFmt = fmtVal(r.field_changed, r.new_value);
+    let fieldHe = fieldLabels[r.field_changed] || r.field_changed || '';
+    let oldFmt = fmtVal(r.field_changed, r.old_value);
+    let newFmt = fmtVal(r.field_changed, r.new_value);
+    // For JSON edits: show only changed fields
+    if (r.field_changed === 'פרטים' && r.old_value && r.new_value) {
+      try {
+        const o = JSON.parse(r.old_value), n = JSON.parse(r.new_value);
+        const diffs = Object.keys(n).filter(k => o[k] !== n[k]);
+        fieldHe = diffs.map(k => fieldLabels[k] || k).join(', ');
+        oldFmt = diffs.map(k => o[k] ?? '').join(' · ') || '—';
+        newFmt = diffs.map(k => n[k] ?? '').join(' · ') || '—';
+      } catch(e) {}
+    }
     return `<tr>
       <td style="white-space:nowrap;color:var(--ink-muted);font-size:12px">${dateStr}</td>
       <td><span class="log-user-badge">${r.user_email}</span></td>
