@@ -3424,7 +3424,7 @@ function renderLeads() {
         oninput="updateLeadLocal(${lead.id},'note',this.value)"
         onblur="updateLeadDB(${lead.id},'note')">${lead.note}</textarea></td>
       <td style="white-space:nowrap">
-        <button class="btn-suppliers-toggle" title="ספק קיים" onclick="toggleSuppliers(${lead.id},this)">▼ ספק</button>
+        <button class="btn-suppliers-toggle" title="ספק קיים" onclick="toggleSuppliers(${lead.id},this)" style="${(lead.suppliers||[]).filter(s=>s.brand||s.price).length ? 'color:var(--success)' : ''}">${'▼ ספק' + ((lead.suppliers||[]).filter(s=>s.brand||s.price).length ? ` (${(lead.suppliers||[]).filter(s=>s.brand||s.price).length})` : '')}</button>
         <button class="btn-edit-row" title="ערוך ליד" onclick="openEditModal(${lead.id})">✏</button>
         <button class="btn-del-row" title="מחק ליד" onclick="deleteLead(${lead.id})">×</button>
       </td>`;
@@ -3439,7 +3439,25 @@ function saveSuppliers(id) {
   const lead = leadsData.find(l => l.id === id);
   if (!lead) return;
   sb.from('leads').update({ suppliers: lead.suppliers, updated_at: new Date().toISOString() }).eq('id', id)
-    .then(({ error }) => { if (error) console.error('saveSuppliers error:', error); });
+    .then(({ error }) => {
+      if (error) {
+        console.error('saveSuppliers error:', error);
+        alert('שגיאה בשמירת ספקים: ' + error.message + '\n\nאם זו הפעם הראשונה, הרץ ב-Supabase SQL Editor:\nALTER TABLE leads ADD COLUMN IF NOT EXISTS suppliers jsonb DEFAULT \'[]\'::jsonb;');
+      } else {
+        updateSupplierBtn(id);
+      }
+    });
+}
+
+function updateSupplierBtn(id) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  const btn = document.querySelector(`tr[data-id="${id}"] .btn-suppliers-toggle`);
+  if (!btn) return;
+  const count = (lead.suppliers || []).filter(s => s.brand || s.price).length;
+  const isOpen = btn.classList.contains('open');
+  btn.textContent = (isOpen ? '▲' : '▼') + ' ספק' + (count ? ` (${count})` : '');
+  btn.style.color = count ? 'var(--success)' : '';
 }
 
 function buildSuppliersRow(lead) {
@@ -3478,10 +3496,12 @@ function toggleSuppliers(id, btn) {
   const leadRow = document.querySelector(`tr[data-id="${id}"]`);
   if (!leadRow) return;
   const existing = leadRow.nextElementSibling;
+  const count = (lead.suppliers || []).filter(s => s.brand || s.price).length;
   if (existing && existing.classList.contains('suppliers-row')) {
     existing.remove();
     btn.classList.remove('open');
-    btn.textContent = '▼ ספק';
+    btn.textContent = '▼ ספק' + (count ? ` (${count})` : '');
+    btn.style.color = count ? 'var(--success)' : '';
   } else {
     const tr = document.createElement('tr');
     tr.className = 'suppliers-row';
@@ -3489,7 +3509,8 @@ function toggleSuppliers(id, btn) {
     tr.innerHTML = buildSuppliersRow(lead);
     leadRow.insertAdjacentElement('afterend', tr);
     btn.classList.add('open');
-    btn.textContent = '▲ ספק';
+    btn.textContent = '▲ ספק' + (count ? ` (${count})` : '');
+    btn.style.color = 'var(--primary)';
   }
 }
 
