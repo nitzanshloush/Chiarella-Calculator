@@ -1152,6 +1152,40 @@
 
   /* ===== LEADS TABLE ===== */
   .leads-page { max-width: 1280px; margin: 0 auto; padding: 28px 32px; }
+  .leads-status-bar {
+    display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .status-stat-card {
+    flex: 1; min-width: 120px;
+    background: var(--paper); border-radius: 12px;
+    border: 1.5px solid var(--line);
+    padding: 14px 18px;
+    display: flex; flex-direction: column; gap: 4px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .status-stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(15,41,66,0.1); }
+  .status-stat-card::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 4px; height: 100%; border-radius: 0 12px 12px 0;
+  }
+  .status-stat-card.s0::before { background: #c8d8e8; }
+  .status-stat-card.s1::before { background: #c9a961; }
+  .status-stat-card.s2::before { background: #4a90c2; }
+  .status-stat-card.s3::before { background: #4a9d7e; }
+  .status-stat-card.s4::before { background: #c25555; }
+  .stat-num {
+    font-size: 28px; font-weight: 800; line-height: 1;
+    color: var(--ink);
+  }
+  .stat-label {
+    font-size: 11.5px; font-weight: 600; color: var(--ink-muted);
+    letter-spacing: 0.03em;
+  }
+  .stat-pct {
+    font-size: 11px; color: var(--ink-muted); margin-top: 2px;
+  }
   .leads-toolbar {
     display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
     margin-bottom: 18px;
@@ -1895,6 +1929,7 @@
 
 <div id="tab-leads" class="tab-panel">
   <div class="leads-page">
+    <div id="leadsStatusBar" class="leads-status-bar"></div>
     <div class="leads-toolbar">
       <input class="leads-search" type="text" id="leadsSearch" placeholder="חיפוש לפי שם..." oninput="filterLeads()" />
       <select class="leads-filter" id="filterCat" onchange="filterLeads()">
@@ -3423,6 +3458,23 @@ function renderLeads() {
   });
   rebuildCatFilter();
   filterLeads();
+  renderStatusBar();
+}
+
+// ===== STATUS BAR =====
+function renderStatusBar() {
+  const bar = document.getElementById('leadsStatusBar');
+  if (!bar) return;
+  const total = leadsData.length;
+  const counts = [0,1,2,3,4].map(s => leadsData.filter(l => l.status === s).length);
+  bar.innerHTML = counts.map((c, s) => {
+    const pct = total ? Math.round(c / total * 100) : 0;
+    return `<div class="status-stat-card s${s}" onclick="document.getElementById('filterStatus').value='${s}';filterLeads()" title="סנן לפי ${STATUS_LABELS[s]}">
+      <div class="stat-num">${c}</div>
+      <div class="stat-label">${STATUS_LABELS[s]}</div>
+      <div class="stat-pct">${pct}% מהלידים</div>
+    </div>`;
+  }).join('');
 }
 
 // ===== EXPORT =====
