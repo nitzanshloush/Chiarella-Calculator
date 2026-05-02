@@ -1315,6 +1315,7 @@
   .btn-add-lead {
     display: flex; align-items: center; gap: 7px;
     padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    font-family: var(--font);
     cursor: pointer; border: none; background: var(--primary); color: white;
     transition: background 0.15s; white-space: nowrap;
   }
@@ -1322,6 +1323,7 @@
   .btn-manage-cats {
     display: flex; align-items: center; gap: 6px;
     padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    font-family: var(--font);
     cursor: pointer; border: 1.5px solid var(--line); background: var(--paper);
     color: var(--ink-soft); transition: all 0.15s; white-space: nowrap;
   }
@@ -1333,6 +1335,30 @@
   }
   .btn-del-row:hover { color: var(--danger); background: var(--danger-bg); }
   .btn-edit-row:hover { color: var(--primary); background: var(--primary-bg); }
+
+  /* Suppliers panel */
+  .btn-suppliers-toggle { background:none; border:none; cursor:pointer; color:var(--ink-muted); font-size:11px; padding:2px 5px; border-radius:4px; font-family:var(--font); transition:color 0.1s; }
+  .btn-suppliers-toggle:hover { color:var(--primary); }
+  .btn-suppliers-toggle.open { color:var(--primary); }
+  .suppliers-row td { padding:0; background:var(--bg-soft); }
+  .suppliers-inner { padding:10px 18px 14px; border-top:1px dashed var(--line); }
+  .suppliers-title { font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; letter-spacing:0.04em; text-transform:uppercase; }
+  .suppliers-table { border-collapse:collapse; font-size:12.5px; }
+  .suppliers-table th { padding:5px 10px; color:var(--ink-muted); font-size:11px; font-weight:700; text-align:right; border-bottom:1px solid var(--line); }
+  .suppliers-table td { padding:4px 6px; }
+  .supplier-input { padding:4px 8px; border:1.5px solid var(--line); border-radius:6px; font-size:12.5px; font-family:var(--font); background:var(--paper); color:var(--ink); }
+  .supplier-input:focus { outline:none; border-color:var(--primary); }
+  .supplier-input.brand { width:120px; }
+  .supplier-input.size  { width:70px; }
+  .supplier-input.price { width:70px; }
+  .supplier-input.qty   { width:130px; }
+  .cmp-win  { color:var(--success); font-weight:700; font-size:12px; }
+  .cmp-lose { color:var(--danger);  font-weight:700; font-size:12px; }
+  .cmp-na   { color:var(--ink-muted); font-size:12px; }
+  .btn-add-supplier { font-family:var(--font); font-size:12px; font-weight:600; padding:5px 12px; border-radius:6px; border:1.5px dashed var(--line); background:none; color:var(--ink-soft); cursor:pointer; margin-top:8px; }
+  .btn-add-supplier:hover { border-color:var(--primary); color:var(--primary); }
+  .btn-del-supplier { background:none; border:none; cursor:pointer; color:var(--ink-muted); font-size:14px; padding:2px 5px; border-radius:4px; }
+  .btn-del-supplier:hover { color:var(--danger); background:var(--danger-bg); }
 
   /* Modal */
   .modal-overlay {
@@ -3248,7 +3274,8 @@ async function seedInitialData() {
 function mapRow(r) {
   return { id: r.id, cat: r.cat, name: r.name, type: r.type || '',
     level: r.level, status: r.status ?? 0,
-    price500: r.price_500 ?? '', priceGlass: r.price_glass ?? '', note: r.note || '' };
+    price500: r.price_500 ?? '', priceGlass: r.price_glass ?? '', note: r.note || '',
+    suppliers: Array.isArray(r.suppliers) ? r.suppliers : [] };
 }
 
 // ===== ACTIVITY LOG =====
@@ -3395,6 +3422,7 @@ function renderLeads() {
         oninput="updateLeadLocal(${lead.id},'note',this.value)"
         onblur="updateLeadDB(${lead.id},'note')">${lead.note}</textarea></td>
       <td style="white-space:nowrap">
+        <button class="btn-suppliers-toggle" title="ספק קיים" onclick="toggleSuppliers(${lead.id},this)">▼ ספק</button>
         <button class="btn-edit-row" title="ערוך ליד" onclick="openEditModal(${lead.id})">✏</button>
         <button class="btn-del-row" title="מחק ליד" onclick="deleteLead(${lead.id})">×</button>
       </td>`;
@@ -3402,6 +3430,96 @@ function renderLeads() {
   });
   rebuildCatFilter();
   filterLeads();
+}
+
+// ===== SUPPLIERS =====
+function saveSuppliers(id) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  sb.from('leads').update({ suppliers: lead.suppliers, updated_at: new Date().toISOString() }).eq('id', id)
+    .then(({ error }) => { if (error) console.error('saveSuppliers error:', error); });
+}
+
+function buildSuppliersRow(lead) {
+  const sup = lead.suppliers || [];
+  const cmpCell = (s) => {
+    const sp = parseFloat(s.price);
+    const size = String(s.size).trim();
+    const chp = size === '500' ? parseFloat(lead.price500) : size === '750' ? parseFloat(lead.priceGlass) : NaN;
+    if (isNaN(sp) || isNaN(chp) || !chp) return `<span class="cmp-na">—</span>`;
+    const diff = ((chp - sp) / sp * 100).toFixed(0);
+    if (chp <= sp) return `<span class="cmp-win">✓ זול ב-${Math.abs(diff)}%</span>`;
+    return `<span class="cmp-lose">✗ יקר ב-${Math.abs(diff)}%</span>`;
+  };
+  const rows = sup.map((s, i) => `
+    <tr>
+      <td><input class="supplier-input brand" value="${s.brand||''}" placeholder="שם מותג" onblur="updateSupplier(${lead.id},${i},'brand',this.value)" /></td>
+      <td><input class="supplier-input size" type="number" value="${s.size||''}" placeholder="500" onblur="updateSupplier(${lead.id},${i},'size',this.value)" /></td>
+      <td><input class="supplier-input price" type="number" step="0.01" value="${s.price||''}" placeholder="0.00" onblur="updateSupplier(${lead.id},${i},'price',this.value)" /></td>
+      <td><input class="supplier-input qty" value="${s.qty||''}" placeholder='כמות (למשל: 100/חודש)' onblur="updateSupplier(${lead.id},${i},'qty',this.value)" /></td>
+      <td>${cmpCell(s)}</td>
+      <td><button class="btn-del-supplier" onclick="deleteSupplier(${lead.id},${i})">×</button></td>
+    </tr>`).join('');
+  return `<td colspan="9"><div class="suppliers-inner">
+    <div class="suppliers-title">ספקים נוכחיים</div>
+    <table class="suppliers-table">
+      <thead><tr><th>מותג</th><th>גודל (מ"ל)</th><th>מחיר/יחידה (₪)</th><th>כמות</th><th>מול Chiarella</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <button class="btn-add-supplier" onclick="addSupplier(${lead.id})">+ הוסף ספק</button>
+  </div></td>`;
+}
+
+function toggleSuppliers(id, btn) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  const leadRow = document.querySelector(`tr[data-id="${id}"]`);
+  if (!leadRow) return;
+  const existing = leadRow.nextElementSibling;
+  if (existing && existing.classList.contains('suppliers-row')) {
+    existing.remove();
+    btn.classList.remove('open');
+    btn.textContent = '▼ ספק';
+  } else {
+    const tr = document.createElement('tr');
+    tr.className = 'suppliers-row';
+    tr.dataset.for = id;
+    tr.innerHTML = buildSuppliersRow(lead);
+    leadRow.insertAdjacentElement('afterend', tr);
+    btn.classList.add('open');
+    btn.textContent = '▲ ספק';
+  }
+}
+
+function refreshSuppliersRow(id) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  const sr = document.querySelector(`.suppliers-row[data-for="${id}"]`);
+  if (sr) sr.innerHTML = buildSuppliersRow(lead);
+}
+
+function addSupplier(id) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  lead.suppliers.push({ brand:'', size:'', price:'', qty:'' });
+  refreshSuppliersRow(id);
+  saveSuppliers(id);
+}
+
+function deleteSupplier(id, idx) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  lead.suppliers.splice(idx, 1);
+  refreshSuppliersRow(id);
+  saveSuppliers(id);
+}
+
+function updateSupplier(id, idx, field, val) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead || !lead.suppliers[idx]) return;
+  lead.suppliers[idx][field] = val;
+  refreshSuppliersRow(id);
+  saveSuppliers(id);
 }
 
 // ===== CRUD =====
