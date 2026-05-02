@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #f4f8fc;
@@ -1254,6 +1255,62 @@
     color: var(--ink-soft); letter-spacing: 0.05em; text-transform: uppercase;
     border-bottom: none;
   }
+
+  /* ===== LOGIN ===== */
+  .login-overlay {
+    position: fixed; inset: 0; z-index: 999; background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-overlay.hidden { display: none; }
+  .login-card {
+    background: var(--paper); border-radius: 16px; padding: 44px 48px;
+    width: 420px; max-width: 95vw; text-align: center;
+    box-shadow: 0 20px 60px rgba(15,41,66,0.15); border: 1px solid var(--line);
+  }
+  .login-logo {
+    width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 18px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 22px; font-weight: 800;
+  }
+  .login-title { font-size: 22px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 28px; }
+  .login-input {
+    width: 100%; padding: 12px 16px; border: 1.5px solid var(--line);
+    border-radius: 10px; font-size: 15px; font-family: var(--font);
+    color: var(--ink); background: var(--paper); box-sizing: border-box;
+    text-align: left; direction: ltr; margin-bottom: 14px;
+  }
+  .login-input:focus { outline: none; border-color: var(--primary); }
+  .login-btn {
+    width: 100%; padding: 13px; border-radius: 10px; font-size: 15px;
+    font-weight: 700; border: none; background: var(--primary); color: white;
+    cursor: pointer; font-family: var(--font); transition: background 0.15s;
+  }
+  .login-btn:hover { background: var(--primary-deep); }
+  .login-btn:disabled { opacity: 0.6; cursor: default; }
+  .login-msg {
+    margin-top: 14px; font-size: 13px; min-height: 20px; color: var(--ink-muted);
+  }
+  .login-msg.ok { color: var(--success); }
+  .login-msg.err { color: var(--danger); }
+
+  /* ===== LOG TAB ===== */
+  .log-page { max-width: 1280px; margin: 0 auto; padding: 28px 32px; }
+  .log-toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .log-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow-card); }
+  .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .log-table th { padding: 11px 14px; text-align: right; background: var(--bg-soft); color: var(--ink-soft); font-size: 11.5px; font-weight: 700; border-bottom: 1.5px solid var(--line); white-space: nowrap; }
+  .log-table td { padding: 10px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+  .log-table tr:last-child td { border-bottom: none; }
+  .log-table tr:hover td { background: var(--bg-soft); }
+  .log-action { display: inline-block; padding: 2px 9px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+  .log-action.הוסיף  { background: var(--success-bg); color: var(--success); }
+  .log-action.מחק    { background: var(--danger-bg);  color: var(--danger); }
+  .log-action.ערך    { background: var(--primary-bg); color: var(--primary); }
+  .btn-refresh { display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink-soft); transition: all 0.15s; }
+  .btn-refresh:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+  .log-user-badge { font-size: 11.5px; color: var(--ink-muted); background: var(--bg-soft); padding: 2px 8px; border-radius: 100px; }
   .btn-add-lead {
     display: flex; align-items: center; gap: 7px;
     padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
@@ -1360,9 +1417,22 @@
   </div>
 </header>
 
+<!-- Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">C</div>
+    <div class="login-title">Chiarella</div>
+    <div class="login-sub">הזן את כתובת המייל שלך לקבלת קישור כניסה</div>
+    <input class="login-input" id="loginEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendMagicLink()" />
+    <button class="login-btn" id="loginBtn" onclick="sendMagicLink()">שלח קישור כניסה</button>
+    <div class="login-msg" id="loginMsg"></div>
+  </div>
+</div>
+
 <div class="tabs-nav">
   <button class="tab-btn active" onclick="switchTab('calc',this)">מחשבון</button>
   <button class="tab-btn" onclick="switchTab('leads',this)">לידים <span class="tab-count">125</span></button>
+  <button class="tab-btn" onclick="switchTab('log',this)">יומן שינויים</button>
 </div>
 
 <div id="tab-calc" class="tab-panel active">
@@ -1838,6 +1908,41 @@
     </div>
   </div>
 </div><!-- end tab-leads -->
+
+<div id="tab-log" class="tab-panel">
+  <div class="log-page">
+    <div class="log-toolbar">
+      <select class="leads-filter" id="logFilterAction" onchange="renderLog()">
+        <option value="">כל הפעולות</option>
+        <option value="הוסיף">הוסיף</option>
+        <option value="ערך">ערך</option>
+        <option value="מחק">מחק</option>
+      </select>
+      <select class="leads-filter" id="logFilterUser" onchange="renderLog()">
+        <option value="">כל המשתמשים</option>
+      </select>
+      <button class="btn-refresh" onclick="loadLog()">↻ רענן</button>
+      <span class="leads-stats" id="logStats"></span>
+    </div>
+    <div class="log-table-wrap">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>תאריך ושעה</th>
+            <th>משתמש</th>
+            <th>פעולה</th>
+            <th>על מה</th>
+            <th>שם</th>
+            <th>שדה</th>
+            <th>ערך קודם</th>
+            <th>ערך חדש</th>
+          </tr>
+        </thead>
+        <tbody id="logTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- end tab-log -->
 
 <!-- Add Lead Modal -->
 <div class="modal-overlay hidden" id="addLeadModal">
@@ -2983,40 +3088,146 @@ const CAT_PALETTE = [
 ];
 const DEFAULT_CATS = ['מלון','מסעדה','בר','קונדיטוריה','חוף'];
 
+// ===== SUPABASE =====
+const SUPABASE_URL  = 'REPLACE_WITH_YOUR_SUPABASE_URL';
+const SUPABASE_ANON = 'REPLACE_WITH_YOUR_SUPABASE_ANON_KEY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUserEmail = '';
 let leadsData = [];
 let categories = [];
+let logData = [];
 let sortDir = 1;
-let nextId = 0;
+let editingLeadId = null;
 
+// ===== AUTH =====
+async function sendMagicLink() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) return;
+  const btn = document.getElementById('loginBtn');
+  const msg = document.getElementById('loginMsg');
+  btn.disabled = true;
+  btn.textContent = 'שולח...';
+  msg.className = 'login-msg';
+  msg.textContent = '';
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href } });
+  btn.disabled = false;
+  btn.textContent = 'שלח קישור כניסה';
+  if (error) {
+    msg.className = 'login-msg err';
+    msg.textContent = 'שגיאה: ' + error.message;
+  } else {
+    msg.className = 'login-msg ok';
+    msg.textContent = '✓ קישור נשלח! בדוק את תיבת הדואר שלך.';
+  }
+}
+
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    // Whitelist check
+    const { data } = await sb.from('allowed_emails').select('email').eq('email', session.user.email).single();
+    if (!data) {
+      await sb.auth.signOut();
+      const msg = document.getElementById('loginMsg');
+      msg.className = 'login-msg err';
+      msg.textContent = 'המייל הזה אינו מורשה לגשת למערכת.';
+      return;
+    }
+    currentUserEmail = session.user.email;
+    document.getElementById('loginOverlay').classList.add('hidden');
+    await initData();
+  } else {
+    document.getElementById('loginOverlay').classList.remove('hidden');
+  }
+});
+
+// ===== DATA INIT =====
+async function initData() {
+  const [{ data: catsData }, { data: leadsRaw }] = await Promise.all([
+    sb.from('categories').select('name').order('sort_order'),
+    sb.from('leads').select('*').order('id')
+  ]);
+
+  if (!catsData || catsData.length === 0) {
+    await seedInitialData();
+  } else {
+    categories = catsData.map(r => r.name);
+    leadsData  = (leadsRaw || []).map(mapRow);
+  }
+  renderLeads();
+}
+
+async function seedInitialData() {
+  // Insert default categories
+  await sb.from('categories').insert(DEFAULT_CATS.map((name, i) => ({ name, sort_order: i })));
+  // Insert all LEADS_RAW
+  const rows = LEADS_RAW.map(r => ({ cat: r.cat, name: r.name, type: r.type, level: r.level, status: 0 }));
+  const { data } = await sb.from('leads').insert(rows).select();
+  categories = [...DEFAULT_CATS];
+  leadsData  = (data || []).map(mapRow);
+  renderLeads();
+}
+
+function mapRow(r) {
+  return { id: r.id, cat: r.cat, name: r.name, type: r.type || '',
+    level: r.level, status: r.status ?? 0,
+    price500: r.price_500 ?? '', priceGlass: r.price_glass ?? '', note: r.note || '' };
+}
+
+// ===== ACTIVITY LOG =====
+function logActivity(action, entity, entityName, fieldChanged, oldVal, newVal) {
+  sb.from('activity_log').insert({
+    user_email: currentUserEmail, action, entity, entity_name: entityName,
+    field_changed: fieldChanged || null,
+    old_value: (oldVal !== undefined && oldVal !== '') ? String(oldVal) : null,
+    new_value: (newVal !== undefined && newVal !== '') ? String(newVal) : null
+  });
+}
+
+async function loadLog() {
+  const { data } = await sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(500);
+  logData = data || [];
+  // Populate user filter
+  const users = [...new Set(logData.map(r => r.user_email))];
+  const userSel = document.getElementById('logFilterUser');
+  const cur = userSel.value;
+  userSel.innerHTML = '<option value="">כל המשתמשים</option>' +
+    users.map(u => `<option value="${u}"${u===cur?' selected':''}>${u}</option>`).join('');
+  renderLog();
+}
+
+function renderLog() {
+  const filterAction = document.getElementById('logFilterAction').value;
+  const filterUser   = document.getElementById('logFilterUser').value;
+  const tbody = document.getElementById('logTbody');
+  const rows = logData.filter(r =>
+    (!filterAction || r.action === filterAction) &&
+    (!filterUser   || r.user_email === filterUser)
+  );
+  document.getElementById('logStats').textContent = rows.length + ' רשומות';
+  tbody.innerHTML = rows.map(r => {
+    const dt = new Date(r.created_at);
+    const dateStr = dt.toLocaleDateString('he-IL') + ' ' + dt.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit' });
+    const fieldLabels = { status:'סטטוס', price500:'מחיר 500מל', priceGlass:'מחיר זכוכית', note:'הערות', name:'שם', cat:'קטגוריה', level:'רמה', type:'סוג' };
+    const fieldHe = fieldLabels[r.field_changed] || r.field_changed || '';
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--ink-muted);font-size:12px">${dateStr}</td>
+      <td><span class="log-user-badge">${r.user_email}</span></td>
+      <td><span class="log-action ${r.action}">${r.action}</span></td>
+      <td style="color:var(--ink-muted);font-size:12px">${r.entity}</td>
+      <td style="font-weight:600">${r.entity_name}</td>
+      <td style="color:var(--ink-muted);font-size:12px">${fieldHe}</td>
+      <td style="color:var(--ink-muted);font-size:12px">${r.old_value ?? ''}</td>
+      <td style="font-size:12px">${r.new_value ?? ''}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--ink-muted)">אין רשומות</td></tr>';
+}
+
+// ===== RENDER =====
 function catStyle(catName) {
   const idx = categories.indexOf(catName) % CAT_PALETTE.length;
   const p = CAT_PALETTE[Math.max(0, idx)];
   return `background:${p.bg};color:${p.color}`;
-}
-
-function saveAll() {
-  localStorage.setItem('chiarella_leads2', JSON.stringify(leadsData));
-  localStorage.setItem('chiarella_cats', JSON.stringify(categories));
-}
-
-function loadAll() {
-  const savedCats = localStorage.getItem('chiarella_cats');
-  categories = savedCats ? JSON.parse(savedCats) : [...DEFAULT_CATS];
-
-  const savedLeads = localStorage.getItem('chiarella_leads2');
-  if (savedLeads) {
-    leadsData = JSON.parse(savedLeads);
-    nextId = leadsData.reduce((m, l) => Math.max(m, l.id), -1) + 1;
-  } else {
-    // First load: seed from LEADS_RAW + migrate old localStorage if any
-    const old = JSON.parse(localStorage.getItem('chiarella_leads') || '{}');
-    leadsData = LEADS_RAW.map((r, i) => {
-      const s = old[i] || {};
-      return { ...r, id: i, status: s.status ?? 0, price500: s.price500 ?? '', priceGlass: s.priceGlass ?? '', note: s.note ?? '' };
-    });
-    nextId = leadsData.length;
-    saveAll();
-  }
 }
 
 function rebuildCatFilter() {
@@ -3030,7 +3241,6 @@ function renderLeads() {
   const tbody = document.getElementById('leadsTbody');
   tbody.innerHTML = '';
   let lastCat = null;
-
   leadsData.forEach(lead => {
     if (lead.cat !== lastCat) {
       lastCat = lead.cat;
@@ -3057,45 +3267,122 @@ function renderLeads() {
           ${STATUS_LABELS.map((l,i)=>`<option value="${i}"${i===lead.status?' selected':''}>${l}</option>`).join('')}
         </select>
       </td>
-      <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.price500}" oninput="updateLead(${lead.id},'price500',this.value)" /></td>
-      <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.priceGlass}" oninput="updateLead(${lead.id},'priceGlass',this.value)" /></td>
-      <td><textarea class="note-input" placeholder="הערה..." oninput="updateLead(${lead.id},'note',this.value)">${lead.note}</textarea></td>
+      <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.price500}"
+        oninput="updateLeadLocal(${lead.id},'price500',this.value)"
+        onblur="updateLeadDB(${lead.id},'price500')" /></td>
+      <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.priceGlass}"
+        oninput="updateLeadLocal(${lead.id},'priceGlass',this.value)"
+        onblur="updateLeadDB(${lead.id},'priceGlass')" /></td>
+      <td><textarea class="note-input" placeholder="הערה..."
+        oninput="updateLeadLocal(${lead.id},'note',this.value)"
+        onblur="updateLeadDB(${lead.id},'note')">${lead.note}</textarea></td>
       <td style="white-space:nowrap">
         <button class="btn-edit-row" title="ערוך ליד" onclick="openEditModal(${lead.id})">✏</button>
         <button class="btn-del-row" title="מחק ליד" onclick="deleteLead(${lead.id})">×</button>
-      </td>
-    `;
+      </td>`;
     tbody.appendChild(tr);
   });
   rebuildCatFilter();
   filterLeads();
 }
 
+// ===== CRUD =====
+// Local-only update (for fast typing feedback)
+function updateLeadLocal(id, field, val) {
+  const lead = leadsData.find(l => l.id === id);
+  if (lead) lead[field] = val;
+}
+
+// DB + log sync (on blur / discrete change)
+function updateLeadDB(id, field) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  const val = lead[field];
+  const dbField = field === 'price500' ? 'price_500' : field === 'priceGlass' ? 'price_glass' : field;
+  sb.from('leads').update({ [dbField]: val || null, updated_at: new Date().toISOString() }).eq('id', id);
+  logActivity('ערך', 'ליד', lead.name, field, '', val);
+}
+
 function updateLead(id, field, val, el) {
   const lead = leadsData.find(l => l.id === id);
   if (!lead) return;
+  const oldVal = lead[field];
   lead[field] = field === 'status' ? parseInt(val) : val;
   if (field === 'status' && el) {
     el.className = 'status-sel s' + val;
     el.closest('tr').dataset.status = val;
   }
-  saveAll();
+  const dbField = field === 'price500' ? 'price_500' : field === 'priceGlass' ? 'price_glass' : field;
+  sb.from('leads').update({ [dbField]: lead[field], updated_at: new Date().toISOString() }).eq('id', id);
+  logActivity('ערך', 'ליד', lead.name, field, oldVal, lead[field]);
 }
 
-function deleteLead(id) {
-  if (!confirm('למחוק ליד זה?')) return;
+async function deleteLead(id) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead || !confirm('למחוק ליד זה?')) return;
+  const name = lead.name;
   leadsData = leadsData.filter(l => l.id !== id);
-  saveAll();
+  renderLeads();
+  await sb.from('leads').delete().eq('id', id);
+  logActivity('מחק', 'ליד', name);
+}
+
+async function submitAddLead() {
+  const name = document.getElementById('ml-name').value.trim();
+  if (!name) { document.getElementById('ml-name').focus(); return; }
+  const cat   = document.getElementById('ml-cat').value;
+  const level = document.getElementById('ml-level').value;
+  const type  = document.getElementById('ml-type').value.trim();
+
+  if (editingLeadId !== null) {
+    const lead = leadsData.find(l => l.id === editingLeadId);
+    if (lead) {
+      const old = { name: lead.name, cat: lead.cat, level: lead.level, type: lead.type };
+      lead.name = name; lead.cat = cat; lead.level = level; lead.type = type;
+      await sb.from('leads').update({ name, cat, level, type, updated_at: new Date().toISOString() }).eq('id', editingLeadId);
+      logActivity('ערך', 'ליד', name, 'פרטים', JSON.stringify(old), JSON.stringify({ name, cat, level, type }));
+    }
+  } else {
+    const { data } = await sb.from('leads').insert({ cat, name, type, level, status: 0 }).select().single();
+    if (data) {
+      leadsData.push(mapRow(data));
+      logActivity('הוסיף', 'ליד', name);
+    }
+  }
+  closeModals();
   renderLeads();
 }
 
+async function addCategory() {
+  const name = document.getElementById('newCatInput').value.trim();
+  if (!name || categories.includes(name)) return;
+  await sb.from('categories').insert({ name, sort_order: categories.length });
+  categories.push(name);
+  logActivity('הוסיף', 'קטגוריה', name);
+  renderCatsList();
+  rebuildCatFilter();
+}
+
+async function deleteCategory(name) {
+  const count = leadsData.filter(l => l.cat === name).length;
+  if (count > 0 && !confirm(`הקטגוריה "${name}" מכילה ${count} לידים. למחוק אותה ואת כל הלידים שלה?`)) return;
+  leadsData = leadsData.filter(l => l.cat !== name);
+  categories = categories.filter(c => c !== name);
+  await sb.from('leads').delete().eq('cat', name);
+  await sb.from('categories').delete().eq('name', name);
+  logActivity('מחק', 'קטגוריה', name);
+  renderCatsList();
+  rebuildCatFilter();
+  renderLeads();
+}
+
+// ===== FILTER & SORT =====
 function filterLeads() {
   const search = document.getElementById('leadsSearch').value.toLowerCase();
   const cat    = document.getElementById('filterCat').value;
   const level  = document.getElementById('filterLevel').value;
   const status = document.getElementById('filterStatus').value;
   let visible = 0;
-
   document.querySelectorAll('#leadsTbody tr:not(.leads-section-header)').forEach(tr => {
     const show = (!search || tr.dataset.name.includes(search))
               && (!cat    || tr.dataset.cat === cat)
@@ -3118,15 +3405,12 @@ function sortLeads(field) {
   renderLeads();
 }
 
-// ---- Add / Edit Lead Modal ----
-let editingLeadId = null;
-
+// ===== MODALS =====
 function openAddModal() {
   editingLeadId = null;
   document.querySelector('#addLeadModal .modal-title').textContent = 'הוסף ליד חדש';
   document.querySelector('#addLeadModal .btn-modal-ok').textContent = 'הוסף';
-  const sel = document.getElementById('ml-cat');
-  sel.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('ml-cat').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
   document.getElementById('ml-name').value = '';
   document.getElementById('ml-type').value = '';
   document.getElementById('ml-level').value = 'A';
@@ -3140,80 +3424,38 @@ function openEditModal(id) {
   editingLeadId = id;
   document.querySelector('#addLeadModal .modal-title').textContent = 'ערוך ליד';
   document.querySelector('#addLeadModal .btn-modal-ok').textContent = 'שמור';
-  const sel = document.getElementById('ml-cat');
-  sel.innerHTML = categories.map(c => `<option value="${c}"${c===lead.cat?' selected':''}>${c}</option>`).join('');
-  document.getElementById('ml-name').value = lead.name;
-  document.getElementById('ml-type').value = lead.type || '';
+  document.getElementById('ml-cat').innerHTML = categories.map(c => `<option value="${c}"${c===lead.cat?' selected':''}>${c}</option>`).join('');
+  document.getElementById('ml-name').value  = lead.name;
+  document.getElementById('ml-type').value  = lead.type || '';
   document.getElementById('ml-level').value = lead.level;
   document.getElementById('addLeadModal').classList.remove('hidden');
   document.getElementById('ml-name').focus();
 }
 
-function submitAddLead() {
-  const name = document.getElementById('ml-name').value.trim();
-  if (!name) { document.getElementById('ml-name').focus(); return; }
-  const cat   = document.getElementById('ml-cat').value;
-  const level = document.getElementById('ml-level').value;
-  const type  = document.getElementById('ml-type').value.trim();
-
-  if (editingLeadId !== null) {
-    const lead = leadsData.find(l => l.id === editingLeadId);
-    if (lead) { lead.name = name; lead.cat = cat; lead.level = level; lead.type = type; }
-  } else {
-    leadsData.push({ id: nextId++, cat, name, type, level, status: 0, price500: '', priceGlass: '', note: '' });
-  }
-  saveAll();
-  closeModals();
-  renderLeads();
-}
-
-// ---- Category Modal ----
-function openCatsModal() {
-  renderCatsList();
-  document.getElementById('catsModal').classList.remove('hidden');
-}
+function openCatsModal() { renderCatsList(); document.getElementById('catsModal').classList.remove('hidden'); }
 
 function renderCatsList() {
-  const el = document.getElementById('catsListEl');
-  el.innerHTML = categories.map(c => {
+  document.getElementById('catsListEl').innerHTML = categories.map(c => {
     const count = leadsData.filter(l => l.cat === c).length;
     return `<div class="cat-row">
       <span class="cat-badge" style="${catStyle(c)}">${c}</span>
       <span class="cat-row-name">${c}</span>
       <span class="cat-count">${count} לידים</span>
-      <button class="btn-del-cat" title="מחק קטגוריה" onclick="deleteCategory('${c}')">×</button>
+      <button class="btn-del-cat" onclick="deleteCategory('${c}')">×</button>
     </div>`;
   }).join('');
   document.getElementById('newCatInput').value = '';
 }
 
-function addCategory() {
-  const name = document.getElementById('newCatInput').value.trim();
-  if (!name || categories.includes(name)) return;
-  categories.push(name);
-  saveAll();
-  renderCatsList();
-  rebuildCatFilter();
-}
-
-function deleteCategory(name) {
-  const count = leadsData.filter(l => l.cat === name).length;
-  if (count > 0 && !confirm(`הקטגוריה "${name}" מכילה ${count} לידים. למחוק אותה ואת כל הלידים שלה?`)) return;
-  leadsData = leadsData.filter(l => l.cat !== name);
-  categories = categories.filter(c => c !== name);
-  saveAll();
-  renderCatsList();
-  rebuildCatFilter();
-  renderLeads();
-}
-
-function closeModals() {
-  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
-}
+function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
 
-loadAll();
-renderLeads();
+// Log tab refresh on switch
+const _origSwitch = switchTab;
+window.switchTab = function(id, btn) {
+  _origSwitch(id, btn);
+  if (id === 'log' && currentUserEmail) loadLog();
+};
 </script>
 
 </body>
