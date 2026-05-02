@@ -1433,9 +1433,9 @@
 <div class="tabs-nav">
   <button class="tab-btn active" onclick="switchTab('calc',this)">מחשבון</button>
   <button class="tab-btn" onclick="switchTab('leads',this)">לידים <span class="tab-count">125</span></button>
-  <button class="tab-btn" onclick="switchTab('log',this)">יומן שינויים</button>
   <span style="flex:1"></span>
   <span id="userLabel" style="font-size:13px;color:var(--muted);align-self:center;padding-left:8px"></span>
+  <button class="tab-btn" style="color:var(--muted);font-size:13px" onclick="openAdminLog()">ADMIN</button>
   <button class="tab-btn" style="color:var(--muted);font-size:13px" onclick="signOut()">יציאה</button>
 </div>
 
@@ -1913,9 +1913,12 @@
   </div>
 </div><!-- end tab-leads -->
 
-<div id="tab-log" class="tab-panel">
-  <div class="log-page">
-    <div class="log-toolbar">
+<!-- Admin Log Modal -->
+<div class="modal-overlay hidden" id="adminLogModal" onclick="if(event.target===this)closeAdminLog()">
+  <div class="modal-box" style="max-width:900px;width:95vw;max-height:85vh;display:flex;flex-direction:column">
+    <button class="modal-close" onclick="closeAdminLog()">×</button>
+    <div style="font-size:18px;font-weight:700;margin-bottom:16px">יומן שינויים — לידים</div>
+    <div class="log-toolbar" style="margin-bottom:14px">
       <select class="leads-filter" id="logFilterAction" onchange="renderLog()">
         <option value="">כל הפעולות</option>
         <option value="הוסיף">הוסיף</option>
@@ -1928,15 +1931,14 @@
       <button class="btn-refresh" onclick="loadLog()">↻ רענן</button>
       <span class="leads-stats" id="logStats"></span>
     </div>
-    <div class="log-table-wrap">
+    <div class="log-table-wrap" style="overflow-y:auto;flex:1">
       <table class="log-table">
         <thead>
           <tr>
             <th>תאריך ושעה</th>
             <th>משתמש</th>
             <th>פעולה</th>
-            <th>על מה</th>
-            <th>שם</th>
+            <th>שם ליד</th>
             <th>שדה</th>
             <th>ערך קודם</th>
             <th>ערך חדש</th>
@@ -1946,7 +1948,7 @@
       </table>
     </div>
   </div>
-</div><!-- end tab-log -->
+</div>
 
 <!-- Add Lead Modal -->
 <div class="modal-overlay hidden" id="addLeadModal">
@@ -3255,13 +3257,26 @@ function logActivity(action, entity, entityName, fieldChanged, oldVal, newVal) {
     field_changed: fieldChanged || null,
     old_value: (oldVal !== undefined && oldVal !== '') ? String(oldVal) : null,
     new_value: (newVal !== undefined && newVal !== '') ? String(newVal) : null
-  });
+  }).then(({ error }) => { if (error) console.error('logActivity error:', error); });
+}
+
+function openAdminLog() {
+  const code = prompt('קוד גישה:');
+  if (code !== 'ADMINC') { if (code !== null) alert('קוד שגוי'); return; }
+  document.getElementById('adminLogModal').classList.remove('hidden');
+  loadLog();
+}
+function closeAdminLog() {
+  document.getElementById('adminLogModal').classList.add('hidden');
 }
 
 async function loadLog() {
-  const { data } = await sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(500);
+  const { data } = await sb.from('activity_log')
+    .select('*')
+    .eq('entity', 'ליד')
+    .order('created_at', { ascending: false })
+    .limit(500);
   logData = data || [];
-  // Populate user filter
   const users = [...new Set(logData.map(r => r.user_email))];
   const userSel = document.getElementById('logFilterUser');
   const cur = userSel.value;
@@ -3279,22 +3294,21 @@ function renderLog() {
     (!filterUser   || r.user_email === filterUser)
   );
   document.getElementById('logStats').textContent = rows.length + ' רשומות';
+  const fieldLabels = { status:'סטטוס', price500:'מחיר 500מל', priceGlass:'מחיר זכוכית', note:'הערות', name:'שם', cat:'קטגוריה', level:'רמה', type:'סוג', פרטים:'פרטים' };
   tbody.innerHTML = rows.map(r => {
     const dt = new Date(r.created_at);
     const dateStr = dt.toLocaleDateString('he-IL') + ' ' + dt.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit' });
-    const fieldLabels = { status:'סטטוס', price500:'מחיר 500מל', priceGlass:'מחיר זכוכית', note:'הערות', name:'שם', cat:'קטגוריה', level:'רמה', type:'סוג' };
     const fieldHe = fieldLabels[r.field_changed] || r.field_changed || '';
     return `<tr>
       <td style="white-space:nowrap;color:var(--ink-muted);font-size:12px">${dateStr}</td>
       <td><span class="log-user-badge">${r.user_email}</span></td>
       <td><span class="log-action ${r.action}">${r.action}</span></td>
-      <td style="color:var(--ink-muted);font-size:12px">${r.entity}</td>
       <td style="font-weight:600">${r.entity_name}</td>
       <td style="color:var(--ink-muted);font-size:12px">${fieldHe}</td>
       <td style="color:var(--ink-muted);font-size:12px">${r.old_value ?? ''}</td>
       <td style="font-size:12px">${r.new_value ?? ''}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--ink-muted)">אין רשומות</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--ink-muted)">אין רשומות</td></tr>';
 }
 
 // ===== RENDER =====
@@ -3526,12 +3540,6 @@ function renderCatsList() {
 function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
 
-// Log tab refresh on switch
-const _origSwitch = switchTab;
-window.switchTab = function(id, btn) {
-  _origSwitch(id, btn);
-  if (id === 'log' && currentUserEmail) loadLog();
-};
 </script>
 
 </body>
