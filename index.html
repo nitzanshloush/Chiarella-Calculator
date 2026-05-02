@@ -1268,12 +1268,13 @@
     color: var(--ink-soft); transition: all 0.15s; white-space: nowrap;
   }
   .btn-manage-cats:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
-  .btn-del-row {
+  .btn-del-row, .btn-edit-row {
     background: none; border: none; cursor: pointer;
-    color: var(--ink-muted); font-size: 17px; line-height: 1;
+    color: var(--ink-muted); font-size: 15px; line-height: 1;
     padding: 2px 6px; border-radius: 4px; transition: color 0.1s, background 0.1s;
   }
   .btn-del-row:hover { color: var(--danger); background: var(--danger-bg); }
+  .btn-edit-row:hover { color: var(--primary); background: var(--primary-bg); }
 
   /* Modal */
   .modal-overlay {
@@ -3059,7 +3060,10 @@ function renderLeads() {
       <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.price500}" oninput="updateLead(${lead.id},'price500',this.value)" /></td>
       <td><input class="price-input" type="number" step="0.1" placeholder="—" value="${lead.priceGlass}" oninput="updateLead(${lead.id},'priceGlass',this.value)" /></td>
       <td><textarea class="note-input" placeholder="הערה..." oninput="updateLead(${lead.id},'note',this.value)">${lead.note}</textarea></td>
-      <td><button class="btn-del-row" title="מחק ליד" onclick="deleteLead(${lead.id})">×</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn-edit-row" title="ערוך ליד" onclick="openEditModal(${lead.id})">✏</button>
+        <button class="btn-del-row" title="מחק ליד" onclick="deleteLead(${lead.id})">×</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -3114,12 +3118,33 @@ function sortLeads(field) {
   renderLeads();
 }
 
-// ---- Add Lead Modal ----
+// ---- Add / Edit Lead Modal ----
+let editingLeadId = null;
+
 function openAddModal() {
+  editingLeadId = null;
+  document.querySelector('#addLeadModal .modal-title').textContent = 'הוסף ליד חדש';
+  document.querySelector('#addLeadModal .btn-modal-ok').textContent = 'הוסף';
   const sel = document.getElementById('ml-cat');
   sel.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
   document.getElementById('ml-name').value = '';
   document.getElementById('ml-type').value = '';
+  document.getElementById('ml-level').value = 'A';
+  document.getElementById('addLeadModal').classList.remove('hidden');
+  document.getElementById('ml-name').focus();
+}
+
+function openEditModal(id) {
+  const lead = leadsData.find(l => l.id === id);
+  if (!lead) return;
+  editingLeadId = id;
+  document.querySelector('#addLeadModal .modal-title').textContent = 'ערוך ליד';
+  document.querySelector('#addLeadModal .btn-modal-ok').textContent = 'שמור';
+  const sel = document.getElementById('ml-cat');
+  sel.innerHTML = categories.map(c => `<option value="${c}"${c===lead.cat?' selected':''}>${c}</option>`).join('');
+  document.getElementById('ml-name').value = lead.name;
+  document.getElementById('ml-type').value = lead.type || '';
+  document.getElementById('ml-level').value = lead.level;
   document.getElementById('addLeadModal').classList.remove('hidden');
   document.getElementById('ml-name').focus();
 }
@@ -3130,7 +3155,13 @@ function submitAddLead() {
   const cat   = document.getElementById('ml-cat').value;
   const level = document.getElementById('ml-level').value;
   const type  = document.getElementById('ml-type').value.trim();
-  leadsData.push({ id: nextId++, cat, name, type, level, status: 0, price500: '', priceGlass: '', note: '' });
+
+  if (editingLeadId !== null) {
+    const lead = leadsData.find(l => l.id === editingLeadId);
+    if (lead) { lead.name = name; lead.cat = cat; lead.level = level; lead.type = type; }
+  } else {
+    leadsData.push({ id: nextId++, cat, name, type, level, status: 0, price500: '', priceGlass: '', note: '' });
+  }
   saveAll();
   closeModals();
   renderLeads();
